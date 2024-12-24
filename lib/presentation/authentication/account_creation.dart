@@ -192,6 +192,7 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
   Widget build(BuildContext context) {
     return ConnectivityChecker(
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           leading: IconButton(
             onPressed: () {
@@ -218,9 +219,9 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF0097b2),
-                  Color(0xFF0097b2).withOpacity(1),
-                  Color(0xFF0097b2).withOpacity(0.8),
+                  Color(0xFF00008B),
+                  Color(0xFF00008B).withOpacity(1),
+                  Color(0xFF00008B).withOpacity(0.8),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

@@ -29,7 +29,7 @@ class _EmployeeProfilePage extends State<EmployeeProfilePage> with TickerProvide
 
   Future<void> fetchData() async {
     try {
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 0));
       setState(() {
         employee = {
           'firstName': 'John',
@@ -75,9 +75,9 @@ class _EmployeeProfilePage extends State<EmployeeProfilePage> with TickerProvide
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF0097b2),
-                  Color(0xFF0097b2).withOpacity(1),
-                  Color(0xFF0097b2).withOpacity(0.8)
+                  Color(0xFF00008B),
+                  Color(0xFF00008B).withOpacity(1),
+                  Color(0xFF00008B).withOpacity(0.8)
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -94,9 +94,9 @@ class _EmployeeProfilePage extends State<EmployeeProfilePage> with TickerProvide
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFF0097b2),
-                    Color(0xFF0097b2).withOpacity(1),
-                    Color(0xFF0097b2).withOpacity(0.8)
+                   Color(0xFF00008B),
+                   Color(0xFF00008B).withOpacity(1),
+                   Color(0xFF00008B).withOpacity(0.8)
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -314,10 +314,10 @@ class ProfileInfoTile extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Color(0xFF0097b2).withOpacity(0.1),
+            color: Color(0xffFF0000).withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: Color(0xFF0097b2)),
+          child: Icon(icon, color: Color(0xffFF0000)),
         ),
         title: Text(
           title,

@@ -138,14 +138,14 @@ class _LoginScreenState extends State<LoginScreen>
                               controller: _emailController,
                               decoration: InputDecoration(
                                 prefixIcon:
-                                    Icon(Icons.person, color: Colors.black87),
+                                    Icon(Icons.person, color: Color(0xFF00008B)),
                                 labelText: 'Employee Code',
                                 labelStyle: TextStyle(
-                                  color: Colors.black87,
+                                  color: Color(0xFF00008B),
                                   fontFamily: 'LeagueSpartan',
                                 ),
                                 filled: true,
-                                fillColor: Color(0xff606060).withOpacity(0.1),
+                                fillColor:Color(0xFF00008B).withOpacity(0.1),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,
@@ -162,14 +162,14 @@ class _LoginScreenState extends State<LoginScreen>
                               controller: _passwordController,
                               decoration: InputDecoration(
                                 prefixIcon:
-                                    Icon(Icons.lock, color: Colors.black87),
+                                    Icon(Icons.lock, color: Color(0xFF00008B)),
                                 labelText: 'Password',
                                 labelStyle: TextStyle(
-                                  color: Colors.black87,
+                                  color: Color(0xFF00008B),
                                   fontFamily: 'LeagueSpartan',
                                 ),
                                 filled: true,
-                                fillColor: Color(0xff606060).withOpacity(0.1),
+                                fillColor: Color(0xFF00008B).withOpacity(0.1),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,

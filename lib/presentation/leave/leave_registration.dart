@@ -13,33 +13,41 @@ class RegisterLeave extends StatefulWidget {
   State<RegisterLeave> createState() => _RegisterLeaveState();
 }
 
-class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProviderStateMixin {
+class _RegisterLeaveState extends State<RegisterLeave>
+    with SingleTickerProviderStateMixin {
   late TextEditingController _dateController;
   late AnimationController _controller;
   late Animation<double> _opacityAnimation;
   late Animation<Offset> _slideAnimation;
 
   final List<String> dropdownItems = ['Morning', 'Afternoon'];
-  final List<String> campPlanType = [
-    'Main Event With Co-organized',
-    'Individual Campevent'
-  ];
+  final List<String> campPlanType = ['Morning', 'Afternoon', 'Full Day'];
   final List<String> lastCampDone = [
-    'None',
-    'below 1 month',
-    '1 month above',
-    '2 month above',
-    '3 month above',
-    '6 month above',
-    '12 month above',
-    '2 years above',
-    '5 years above'
+    '1 day ago',
+    '2 day ago',
+    '3 day ago',
+    '4 day ago',
+    '5 day ago',
+    '6 day ago',
+    'Previous week',
+    'Previous Month',
+    'Other',
   ];
 
   String? selectedValue;
   String? campPlanselectedValue;
   String? lastselectedValue;
-  final List<String> _options = ['Yes', 'No'];
+  final List<String> _options = [
+    'Marriage',
+    'Sick Leave',
+    'Travel',
+    'Vacation',
+    'Family Events',
+    "other"
+  ];
+  final List<String> _wfh = [
+   "Yes","No"
+  ];
   String? _selectedValue;
   String? _selectedValue2;
 
@@ -47,9 +55,12 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
   void initState() {
     super.initState();
     _dateController = TextEditingController();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
-    _slideAnimation = Tween<Offset>(begin: const Offset(0.0, 0.1), end: Offset.zero)
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
+    _opacityAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+    _slideAnimation = Tween<Offset>(
+            begin: const Offset(0.0, 0.1), end: Offset.zero)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.forward();
   }
@@ -88,12 +99,16 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
   final TextEditingController phoneNumber1Controller = TextEditingController();
   final TextEditingController phoneNumber2Controller = TextEditingController();
   final TextEditingController name2Controller = TextEditingController();
-  final TextEditingController phoneNumber1_2Controller = TextEditingController();
+  final TextEditingController phoneNumber1_2Controller =
+      TextEditingController();
   final TextEditingController positionController = TextEditingController();
   final TextEditingController position2Controller = TextEditingController();
-  final TextEditingController phoneNumber2_2Controller = TextEditingController();
-  final TextEditingController totalSquareFeetController = TextEditingController();
-  final TextEditingController noOfPatientExpectedController = TextEditingController();
+  final TextEditingController phoneNumber2_2Controller =
+      TextEditingController();
+  final TextEditingController totalSquareFeetController =
+      TextEditingController();
+  final TextEditingController noOfPatientExpectedController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -116,9 +131,9 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF0097b2),
-                  Color(0xFF0097b2).withOpacity(1),
-                  Color(0xFF0097b2).withOpacity(0.8)
+                  Color(0xFF00008B),
+                  Color(0xFF00008B).withOpacity(1),
+                  Color(0xFF00008B).withOpacity(0.8),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -136,12 +151,14 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Leave Details",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 22,
-                        fontFamily: 'LeagueSpartan',
+                    Center(
+                      child: Text(
+                        "Leave Details",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 22,
+                          fontFamily: 'LeagueSpartan',
+                        ),
                       ),
                     ),
                     SizedBox(height: 20),
@@ -169,12 +186,14 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
                                 // Open the time picker when the TextField is tapped
                                 TimeOfDay? pickedTime = await showTimePicker(
                                   context: context,
-                                  initialTime: TimeOfDay.now(), // Set the initial time to the current time
+                                  initialTime: TimeOfDay
+                                      .now(), // Set the initial time to the current time
                                 );
 
                                 if (pickedTime != null) {
                                   // Format and set the selected time in the TextField
-                                  timeController.text = pickedTime.format(context);
+                                  timeController.text =
+                                      pickedTime.format(context);
                                 }
                               },
                               validator: (value) {
@@ -195,8 +214,10 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
                     SizedBox(height: 30),
                     // Submit Button
                     Center(
-                      child: CustomButton(text: 'Register', onPressed: () {  },)
-                    ),
+                        child: CustomButton(
+                      text: 'Register',
+                      onPressed: () {},
+                    )),
                   ],
                 ),
               ),
@@ -210,9 +231,10 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
   List<Widget> _buildFormFields() {
     List<Widget> fields = [
 
+
       SizedBox(height: 20),
       CustomDropdownFormField(
-       labelText: 'Leave Type',
+        labelText: 'Leave Type',
         value: campPlanselectedValue,
         items: campPlanType,
         onChanged: (value) {
@@ -223,7 +245,7 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
       ),
       SizedBox(height: 20),
       CustomDropdownFormField(
-       labelText: 'Last Leave Taken',
+        labelText: 'Last Leave Taken',
         value: lastselectedValue,
         items: lastCampDone,
         onChanged: (value) {
@@ -236,7 +258,7 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
       CustomDropdownFormField(
         labelText: 'Can you able to work from home',
         value: _selectedValue,
-        items: _options,
+        items: _wfh,
         onChanged: (value) {
           setState(() {
             _selectedValue = value;
@@ -245,7 +267,7 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
       ),
       SizedBox(height: 20),
       CustomDropdownFormField(
-        labelText: 'Reason',
+        labelText: 'Reason for your leave',
         value: _selectedValue2,
         items: _options,
         onChanged: (value) {
@@ -254,11 +276,15 @@ class _RegisterLeaveState extends State<RegisterLeave> with SingleTickerProvider
           });
         },
       ),
+      SizedBox(height: 20),
+      _buildCustomTextFormField(
+          'Other Reason', Icons.note_alt_outlined, phoneNumber2Controller),
     ];
     return fields;
   }
 
-  Widget _buildCustomTextFormField(String label, IconData icon, TextEditingController controller) {
+  Widget _buildCustomTextFormField(
+      String label, IconData icon, TextEditingController controller) {
     return CustomTextFormField(
       controller: controller,
       labelText: label,

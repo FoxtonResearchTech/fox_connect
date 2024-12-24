@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:fox_connect/widget/connectivity_checker.dart';
 import 'package:fox_connect/widget/custom_dropdown.dart';
@@ -116,9 +117,9 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFF0097b2),
-                  Color(0xFF0097b2).withOpacity(1),
-                  Color(0xFF0097b2).withOpacity(0.8)
+                  Color(0xFF00008B),
+                  Color(0xFF00008B).withOpacity(1),
+                  Color(0xFF00008B).withOpacity(0.8),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -136,11 +137,22 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Center(
+                      child: Text(
+                        "Task Details",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 22,
+                          fontFamily: 'LeagueSpartan',
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
                     Text(
-                      "Task Details",
+                      "Task Assign Date",
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
-                        fontSize: 22,
+                        fontSize: 20,
                         fontFamily: 'LeagueSpartan',
                       ),
                     ),
@@ -192,11 +204,67 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
                       ],
                     ),
                     SizedBox(height: 20),
+                    _buildRadioOption('Deadline:', _options, _selectedValue2,
+                            (value) {
+                          setState(() {
+                            _selectedValue2 = value;
+                          });
+                        }),
+                    SizedBox(height: 20),
+                    _selectedValue2 == "Yes" ?      Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: AnimatedSize(
+                            duration: const Duration(milliseconds: 300),
+                            child: CustomTextFormField(
+                              controller: _dateController,
+                              onTap: () => _selectDate(context),
+                              labelText: 'Date',
+                              icon: Icons.date_range,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 20),
+
+                        Expanded(
+                          child: AnimatedSize(
+                            duration: const Duration(milliseconds: 300),
+                            child: CustomTextFormField(
+                              controller: timeController,
+                              onTap: () async {
+                                // Open the time picker when the TextField is tapped
+                                TimeOfDay? pickedTime = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.now(), // Set the initial time to the current time
+                                );
+
+                                if (pickedTime != null) {
+                                  // Format and set the selected time in the TextField
+                                  timeController.text = pickedTime.format(context);
+                                }
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please select a time';
+                                }
+                                return null;
+                              },
+                              labelText: 'Time',
+                              icon: Icons.watch_later,
+                            ),
+                          ),
+                        ),
+
+                      ],
+                    )
+                        : SizedBox(),
+                    SizedBox(height: 20,),
                     ..._buildFormFields(),
                     SizedBox(height: 30),
                     // Submit Button
                     Center(
-                        child: CustomButton(text: 'Register', onPressed: () {  },)
+                        child: CustomButton(text: 'Submit', onPressed: () {  },)
                     ),
                   ],
                 ),
@@ -211,51 +279,25 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
   List<Widget> _buildFormFields() {
     List<Widget> fields = [
       _buildCustomTextFormField(
-          'Phone Number 2', Icons.location_city, phoneNumber2Controller),
+          'Project Name', FontAwesomeIcons.projectDiagram, phoneNumber2Controller),
       SizedBox(height: 20),
-      CustomDropdownFormField(
-        labelText: 'Leave Type',
-        value: campPlanselectedValue,
-        items: campPlanType,
-        onChanged: (value) {
-          setState(() {
-            campPlanselectedValue = value;
-          });
-        },
-      ),
+      _buildCustomTextFormField(
+          "Today's Report", FontAwesomeIcons.clipboard, phoneNumber2Controller),
+
+
+
+
       SizedBox(height: 20),
-      CustomDropdownFormField(
-        labelText: 'Last Leave Taken',
-        value: lastselectedValue,
-        items: lastCampDone,
-        onChanged: (value) {
-          setState(() {
-            lastselectedValue = value;
-          });
-        },
-      ),
+      _buildRadioOption('Are You facing any issue:', _options, _selectedValue2,
+              (value) {
+            setState(() {
+              _selectedValue2 = value;
+            });
+          }),
       SizedBox(height: 20),
-      CustomDropdownFormField(
-        labelText: 'Can you able to work from home',
-        value: _selectedValue,
-        items: _options,
-        onChanged: (value) {
-          setState(() {
-            _selectedValue = value;
-          });
-        },
-      ),
-      SizedBox(height: 20),
-      CustomDropdownFormField(
-        labelText: 'Reason',
-        value: _selectedValue2,
-        items: _options,
-        onChanged: (value) {
-          setState(() {
-            _selectedValue2 = value;
-          });
-        },
-      ),
+      _selectedValue2 == "Yes" ?   _buildCustomTextFormField(
+    'Tell us about the issue', Icons.support_agent, phoneNumber2Controller)
+  : SizedBox()
     ];
     return fields;
   }
@@ -271,6 +313,42 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
         }
         return null;
       },
+    );
+  }
+  Widget _buildRadioOption(String label, List<String> options,
+      String? selectedValue, ValueChanged<String?> onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 18,
+              fontFamily: 'LeagueSpartan',
+            )),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: options.map((option) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+
+              children: [
+                Radio<String>(
+                  value: option,
+                  groupValue: selectedValue,
+                  onChanged: onChanged,
+                ),
+                Text(
+                  option,
+                  style: TextStyle(
+                    fontFamily: 'LeagueSpartan',
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

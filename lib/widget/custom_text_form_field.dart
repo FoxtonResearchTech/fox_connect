@@ -40,7 +40,7 @@ class CustomTextFormField extends StatelessWidget {
           fontFamily: 'LeagueSpartan',
         ), // Updated color for label
         prefixIcon: icon != null
-            ? Icon(icon, color: Colors.black87)
+            ? Icon(icon, color: Color(0xffFF0000))
             : null, // Updated icon color
         filled: false,
         fillColor:Colors.blue, // Updated background color
