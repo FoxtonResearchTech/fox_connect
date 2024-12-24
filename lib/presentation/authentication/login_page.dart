@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:fox_connect/presentation/leave/status.dart';
+import 'package:fox_connect/presentation/task/task_registration.dart';
 import 'package:fox_connect/widget/connectivity_checker.dart';
 import 'package:fox_connect/widget/custom_button.dart';
 
@@ -56,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  void _login() {
+  void _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -72,20 +76,52 @@ class _LoginScreenState extends State<LoginScreen>
       _errorMessage = null;
     });
 
-    // Simulating authentication
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      // Firebase Authentication
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      // Fetching user role from Firestore
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('employees')
+          .doc(userCredential.user!.uid)
+          .get();
+
+      if (userDoc.exists) {
+        String role =
+            userDoc['roles']; // Assuming Firestore document has a 'role' field
+        print(role);
+
+        // Navigate based on role
+        if (role == 'Flutter Developer') {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LeaveStatus()),
+          );
+        } else if (role == 'Administrator') {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => TaskRegistration()),
+          );
+        }
+      } else {
+        setState(() {
+          _errorMessage = "User role not found. Contact support.";
+        });
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message; // Firebase error message
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = "An unexpected error occurred. Please try again.";
+      });
+    } finally {
       setState(() {
         _isLoading = false;
       });
-
-      // Dummy roles for demonstration
-      if (email == "organizer" && password == "1234") {
-      } else {
-        setState(() {
-          _errorMessage = "Invalid credentials.";
-        });
-      }
-    });
+    }
   }
 
   @override
@@ -137,15 +173,15 @@ class _LoginScreenState extends State<LoginScreen>
                             TextField(
                               controller: _emailController,
                               decoration: InputDecoration(
-                                prefixIcon:
-                                    Icon(Icons.person, color: Color(0xFF00008B)),
+                                prefixIcon: Icon(Icons.person,
+                                    color: Color(0xFF00008B)),
                                 labelText: 'Employee Code',
                                 labelStyle: TextStyle(
                                   color: Color(0xFF00008B),
                                   fontFamily: 'LeagueSpartan',
                                 ),
                                 filled: true,
-                                fillColor:Color(0xFF00008B).withOpacity(0.1),
+                                fillColor: Color(0xFF00008B).withOpacity(0.1),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,
@@ -184,7 +220,11 @@ class _LoginScreenState extends State<LoginScreen>
                             SizedBox(height: 30),
 
                             // Login Button
-                            CustomButton(text: "Login", onPressed: () {})
+                            CustomButton(
+                                    text: "Login",
+                                    onPressed: () {
+                                      _login();
+                                    })
                                 .animate()
                                 .move(
                                     delay: const Duration(milliseconds: 400),

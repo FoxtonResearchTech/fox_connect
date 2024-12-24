@@ -122,11 +122,16 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
       // If image is selected, upload it to Firebase Storage
       String? imageUrl;
       if (_image != null) {
-        final fileName = '${userCredential.user?.uid}_profile_pic';
-        final ref = _storage.ref().child('profile_images/$fileName');
-        await ref.putFile(_image!); // Upload the file to Firebase Storage
-        imageUrl =
-            await ref.getDownloadURL(); // Get the URL of the uploaded image
+        try {
+          final fileName = '${userCredential.user?.uid}_profile_pic';
+          final ref = _storage.ref().child('profile_images/$fileName');
+          await ref.putFile(_image!); // Upload the file to Firebase Storage
+          imageUrl =
+              await ref.getDownloadURL(); // Get the URL of the uploaded image
+        } catch (e) {
+          _showSnackBar("Image upload failed: ${e.toString()}");
+          return; // Stop further processing if upload fails
+        }
       }
 
       // Save employee data to Firestore
@@ -138,6 +143,7 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
         'lastName': lastNameController.text.toLowerCase().trim(),
         'dob': dobController.text,
         'gender': selectedValue,
+        'roles': selectedRole,
         'notification': positionController.text,
         'empCode': empCodeController.text.toLowerCase().trim(),
         'email': email.toLowerCase().trim(), // Use the constructed email
@@ -145,6 +151,10 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
         'lane2': lane2Controller.text,
         'state': stateController.text,
         'pinCode': pinCodeController.text,
+        'bankName': BankNameController.text,
+        'accountNo': AccountNoController.text,
+        'IFSC': IFSCController.text,
+        'branch': BankBranchController.text,
         'password': passwordController.text,
         'isActive': true, // Add the isActive field and set to true
         'imageUrl': imageUrl, // Add the image URL if available
