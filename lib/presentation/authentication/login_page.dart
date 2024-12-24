@@ -138,14 +138,14 @@ class _LoginScreenState extends State<LoginScreen>
                         controller: _emailController,
                         decoration: InputDecoration(
                           prefixIcon:
-                          Icon(Icons.person, color: Color(0xff0097b2)),
+                          Icon(Icons.person, color: Colors.black87),
                           labelText: 'Employee Code',
                           labelStyle: TextStyle(
-                            color: Color(0xff0097b2),
+                            color: Colors.black87,
                             fontFamily: 'LeagueSpartan',
                           ),
                           filled: true,
-                          fillColor: Colors.blue[50],
+                          fillColor: Color(0xff606060).withOpacity(0.1),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide.none,
@@ -162,14 +162,14 @@ class _LoginScreenState extends State<LoginScreen>
                         controller: _passwordController,
                         decoration: InputDecoration(
                           prefixIcon:
-                          Icon(Icons.lock, color: Color(0xff0097b2)),
+                          Icon(Icons.lock, color: Colors.black87),
                           labelText: 'Password',
                           labelStyle: TextStyle(
-                            color: Color(0xff0097b2),
+                            color: Colors.black87,
                             fontFamily: 'LeagueSpartan',
                           ),
                           filled: true,
-                          fillColor: Colors.blue[50],
+                          fillColor:Color(0xff606060).withOpacity(0.1),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide.none,
