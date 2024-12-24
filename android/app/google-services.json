@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1001868973210",
+    "project_id": "foxtconnect-2023",
+    "storage_bucket": "foxtconnect-2023.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1001868973210:android:61b170996e9bbd535dbb23",
+        "android_client_info": {
+          "package_name": "com.example.fox_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCc6TcEDRCE6S2HpUeoo5-NcWjT51QuZcw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
