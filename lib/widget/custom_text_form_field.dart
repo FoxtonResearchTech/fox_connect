@@ -36,11 +36,11 @@ class CustomTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: labelText,
         labelStyle: TextStyle(
-          color: Colors.blue,
+          color: Colors.black87,
           fontFamily: 'LeagueSpartan',
         ), // Updated color for label
         prefixIcon: icon != null
-            ? Icon(icon, color: Colors.blue)
+            ? Icon(icon, color: Colors.black87)
             : null, // Updated icon color
         filled: false,
         fillColor:Colors.blue, // Updated background color
@@ -48,12 +48,12 @@ class CustomTextFormField extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
               color:
-            Colors.blue), // Accent color for the outline border
+              Color(0xffFF0000)), // Accent color for the outline border
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide:
-          BorderSide(color:Colors.blue, width: 2), // Focus color
+          BorderSide(color:Color(0xffFF0000), width: 2), // Focus color
         ),
       ),
     );
