@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -14,8 +16,14 @@ class TaskRegistration extends StatefulWidget {
   State<TaskRegistration> createState() => _TaskRegistrationState();
 }
 
-class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerProviderStateMixin {
+class _TaskRegistrationState extends State<TaskRegistration>
+    with SingleTickerProviderStateMixin {
   late TextEditingController _dateController;
+  late TextEditingController _assignDateController;
+  late TextEditingController _assignTimeController;
+  late TextEditingController _deadlineDateController;
+  late TextEditingController _deadlineTimeController;
+
   late AnimationController _controller;
   late Animation<double> _opacityAnimation;
   late Animation<Offset> _slideAnimation;
@@ -48,15 +56,23 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
   void initState() {
     super.initState();
     _dateController = TextEditingController();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
-    _slideAnimation = Tween<Offset>(begin: const Offset(0.0, 0.1), end: Offset.zero)
+    _assignDateController = TextEditingController();
+    _assignTimeController = TextEditingController();
+    _deadlineDateController = TextEditingController();
+    _deadlineTimeController = TextEditingController();
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 500));
+    _opacityAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+    _slideAnimation = Tween<Offset>(
+            begin: const Offset(0.0, 0.1), end: Offset.zero)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.forward();
   }
 
   // Method to show the date picker
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -66,35 +82,92 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
 
     if (pickedDate != null) {
       setState(() {
-        _dateController.text = DateFormat('dd-MM-yyyy').format(pickedDate);
+        controller.text = DateFormat('dd-MM-yyyy').format(pickedDate);
       });
+    }
+  }
+
+  void _submitTask() async {
+    // Validate required fields
+    if (_assignDateController.text.isEmpty ||
+        _assignTimeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill out all required fields.')),
+      );
+      return;
+    }
+
+    try {
+      // Get the current logged-in user
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User is not logged in.')),
+        );
+        return;
+      }
+
+      // Prepare the task data
+      Map<String, dynamic> taskData = {
+        'taskAssignDate': _assignDateController.text,
+        'taskAssignTime': _assignTimeController.text,
+        'projectName': projectName.text,
+        'todaysReport': todayReport.text,
+        'taskDeadlineDate': _deadlineDateController.text,
+        'taskDeadlineTime': _deadlineTimeController.text,
+        'issue': _selectedValue,
+        'issueDetails': _selectedValue == "Yes"
+            ? tellUsAboutTheIssue.text.isNotEmpty
+                ? tellUsAboutTheIssue.text
+                : 'No details provided'
+            : null, // Add only if the user reported an issue
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+
+      // Save the data to Firestore under the current user's UID
+      await FirebaseFirestore.instance
+          .collection('employees') // Top-level collection
+          .doc(currentUser.uid) // Use the logged-in user's UID
+          .collection('tasks') // Sub-collection for tasks
+          .add(taskData);
+
+      // Success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Task registered successfully!')),
+      );
+
+      // Clear the form
+      _assignDateController.clear();
+      _assignTimeController.clear();
+      _deadlineDateController.clear();
+      _deadlineTimeController.clear();
+
+      setState(() {
+        _selectedValue = null;
+        _selectedValue2 = null;
+      });
+    } catch (e) {
+      // Error handling
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to register task: $e')),
+      );
     }
   }
 
   @override
   void dispose() {
     _dateController.dispose();
+    _assignDateController.dispose();
+    _assignTimeController.dispose();
+    _deadlineDateController.dispose();
+    _deadlineTimeController.dispose();
     _controller.dispose();
     super.dispose();
   }
 
-  TextEditingController timeController = TextEditingController();
-  final TextEditingController campNameController = TextEditingController();
-  final TextEditingController organizationController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
-  final TextEditingController stateController = TextEditingController();
-  final TextEditingController pincodeController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController phoneNumber1Controller = TextEditingController();
-  final TextEditingController phoneNumber2Controller = TextEditingController();
-  final TextEditingController name2Controller = TextEditingController();
-  final TextEditingController phoneNumber1_2Controller = TextEditingController();
-  final TextEditingController positionController = TextEditingController();
-  final TextEditingController position2Controller = TextEditingController();
-  final TextEditingController phoneNumber2_2Controller = TextEditingController();
-  final TextEditingController totalSquareFeetController = TextEditingController();
-  final TextEditingController noOfPatientExpectedController = TextEditingController();
+  final TextEditingController projectName = TextEditingController();
+  final TextEditingController todayReport = TextEditingController();
+  final TextEditingController tellUsAboutTheIssue = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -164,30 +237,29 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
                           child: AnimatedSize(
                             duration: const Duration(milliseconds: 300),
                             child: CustomTextFormField(
-                              controller: _dateController,
-                              onTap: () => _selectDate(context),
+                              controller: _assignDateController,
+                              onTap: () =>
+                                  _selectDate(context, _assignDateController),
                               labelText: 'Date',
                               icon: Icons.date_range,
                             ),
                           ),
                         ),
                         SizedBox(width: 20),
-
                         Expanded(
                           child: AnimatedSize(
                             duration: const Duration(milliseconds: 300),
                             child: CustomTextFormField(
-                              controller: timeController,
+                              controller: _assignTimeController,
                               onTap: () async {
-                                // Open the time picker when the TextField is tapped
                                 TimeOfDay? pickedTime = await showTimePicker(
                                   context: context,
-                                  initialTime: TimeOfDay.now(), // Set the initial time to the current time
+                                  initialTime: TimeOfDay.now(),
                                 );
 
                                 if (pickedTime != null) {
-                                  // Format and set the selected time in the TextField
-                                  timeController.text = pickedTime.format(context);
+                                  _assignTimeController.text =
+                                      pickedTime.format(context);
                                 }
                               },
                               validator: (value) {
@@ -205,67 +277,73 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
                     ),
                     SizedBox(height: 20),
                     _buildRadioOption('Deadline:', _options, _selectedValue2,
-                            (value) {
-                          setState(() {
-                            _selectedValue2 = value;
-                          });
-                        }),
+                        (value) {
+                      setState(() {
+                        _selectedValue2 = value;
+                      });
+                    }),
                     SizedBox(height: 20),
-                    _selectedValue2 == "Yes" ?      Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: AnimatedSize(
-                            duration: const Duration(milliseconds: 300),
-                            child: CustomTextFormField(
-                              controller: _dateController,
-                              onTap: () => _selectDate(context),
-                              labelText: 'Date',
-                              icon: Icons.date_range,
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 20),
+                    _selectedValue2 == "Yes"
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: AnimatedSize(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: CustomTextFormField(
+                                    controller: _deadlineDateController,
+                                    onTap: () => _selectDate(
+                                        context, _deadlineDateController),
+                                    labelText: 'Date',
+                                    icon: Icons.date_range,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              Expanded(
+                                child: AnimatedSize(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: CustomTextFormField(
+                                    controller: _deadlineTimeController,
+                                    onTap: () async {
+                                      TimeOfDay? pickedTime =
+                                          await showTimePicker(
+                                        context: context,
+                                        initialTime: TimeOfDay.now(),
+                                      );
 
-                        Expanded(
-                          child: AnimatedSize(
-                            duration: const Duration(milliseconds: 300),
-                            child: CustomTextFormField(
-                              controller: timeController,
-                              onTap: () async {
-                                // Open the time picker when the TextField is tapped
-                                TimeOfDay? pickedTime = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.now(), // Set the initial time to the current time
-                                );
-
-                                if (pickedTime != null) {
-                                  // Format and set the selected time in the TextField
-                                  timeController.text = pickedTime.format(context);
-                                }
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please select a time';
-                                }
-                                return null;
-                              },
-                              labelText: 'Time',
-                              icon: Icons.watch_later,
-                            ),
-                          ),
-                        ),
-
-                      ],
-                    )
+                                      if (pickedTime != null) {
+                                        _deadlineTimeController.text =
+                                            pickedTime.format(context);
+                                      }
+                                    },
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please select a time';
+                                      }
+                                      return null;
+                                    },
+                                    labelText: 'Time',
+                                    icon: Icons.watch_later,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
                         : SizedBox(),
-                    SizedBox(height: 20,),
+                    SizedBox(
+                      height: 20,
+                    ),
                     ..._buildFormFields(),
                     SizedBox(height: 30),
                     // Submit Button
                     Center(
-                        child: CustomButton(text: 'Submit', onPressed: () {  },)
-                    ),
+                        child: CustomButton(
+                      text: 'Submit',
+                      onPressed: () {
+                        _submitTask();
+                      },
+                    )),
                   ],
                 ),
               ),
@@ -279,30 +357,28 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
   List<Widget> _buildFormFields() {
     List<Widget> fields = [
       _buildCustomTextFormField(
-          'Project Name', FontAwesomeIcons.projectDiagram, phoneNumber2Controller),
+          'Project Name', FontAwesomeIcons.projectDiagram, projectName),
       SizedBox(height: 20),
       _buildCustomTextFormField(
-          "Today's Report", FontAwesomeIcons.clipboard, phoneNumber2Controller),
-
-
-
-
+          "Today's Report", FontAwesomeIcons.clipboard, todayReport),
       SizedBox(height: 20),
-      _buildRadioOption('Are You facing any issue:', _options, _selectedValue2,
-              (value) {
-            setState(() {
-              _selectedValue2 = value;
-            });
-          }),
+      _buildRadioOption('Are You facing any issue:', _options, _selectedValue,
+          (value) {
+        setState(() {
+          _selectedValue = value;
+        });
+      }),
       SizedBox(height: 20),
-      _selectedValue2 == "Yes" ?   _buildCustomTextFormField(
-    'Tell us about the issue', Icons.support_agent, phoneNumber2Controller)
-  : SizedBox()
+      _selectedValue == "Yes"
+          ? _buildCustomTextFormField('Tell us about the issue',
+              Icons.support_agent, tellUsAboutTheIssue)
+          : SizedBox()
     ];
     return fields;
   }
 
-  Widget _buildCustomTextFormField(String label, IconData icon, TextEditingController controller) {
+  Widget _buildCustomTextFormField(
+      String label, IconData icon, TextEditingController controller) {
     return CustomTextFormField(
       controller: controller,
       labelText: label,
@@ -315,6 +391,7 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
       },
     );
   }
+
   Widget _buildRadioOption(String label, List<String> options,
       String? selectedValue, ValueChanged<String?> onChanged) {
     return Column(
@@ -331,7 +408,6 @@ class _TaskRegistrationState extends State<TaskRegistration> with SingleTickerPr
           children: options.map((option) {
             return Row(
               mainAxisSize: MainAxisSize.min,
-
               children: [
                 Radio<String>(
                   value: option,

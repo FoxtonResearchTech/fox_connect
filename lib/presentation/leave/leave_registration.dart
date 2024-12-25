@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fox_connect/widget/connectivity_checker.dart';
@@ -21,8 +23,8 @@ class _RegisterLeaveState extends State<RegisterLeave>
   late Animation<Offset> _slideAnimation;
 
   final List<String> dropdownItems = ['Morning', 'Afternoon'];
-  final List<String> campPlanType = ['Morning', 'Afternoon', 'Full Day'];
-  final List<String> lastCampDone = [
+  final List<String> leaveType = ['Morning', 'Afternoon', 'Full Day'];
+  final List<String> lastLeaveTaken = [
     '1 day ago',
     '2 day ago',
     '3 day ago',
@@ -35,9 +37,9 @@ class _RegisterLeaveState extends State<RegisterLeave>
   ];
 
   String? selectedValue;
-  String? campPlanselectedValue;
-  String? lastselectedValue;
-  final List<String> _options = [
+  String? leaveTypeValue;
+  String? lastLeaveTakenvalue;
+  final List<String> reasonForLeave = [
     'Marriage',
     'Sick Leave',
     'Travel',
@@ -45,11 +47,9 @@ class _RegisterLeaveState extends State<RegisterLeave>
     'Family Events',
     "other"
   ];
-  final List<String> _wfh = [
-   "Yes","No"
-  ];
-  String? _selectedValue;
-  String? _selectedValue2;
+  final List<String> workFromHome = ["Yes", "No"];
+  String? workFromHomeValue;
+  String? reasonForLeaveValue;
 
   @override
   void initState() {
@@ -81,6 +81,68 @@ class _RegisterLeaveState extends State<RegisterLeave>
     }
   }
 
+  void _registerLeave() async {
+    if (_dateController.text.isEmpty ||
+        timeController.text.isEmpty ||
+        leaveTypeValue == null ||
+        lastLeaveTakenvalue == null ||
+        workFromHomeValue == null ||
+        reasonForLeaveValue == null) {
+      // Show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill out all required fields.')),
+      );
+      return;
+    }
+
+    try {
+      // Get the current logged-in user
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User is not logged in.')),
+        );
+        return;
+      }
+
+      // Prepare the leave data
+      Map<String, dynamic> leaveData = {
+        'date': _dateController.text,
+        'time': timeController.text,
+        'leaveType': leaveTypeValue,
+        'lastLeaveTaken': lastLeaveTakenvalue,
+        'workFromHome': workFromHomeValue,
+        'reason': reasonForLeaveValue,
+        'otherReason': otherReasonController.text.isNotEmpty
+            ? otherReasonController.text
+            : null, // Add only if it's filled
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+
+      // Save the data to Firestore under the current user's UID
+      await FirebaseFirestore.instance
+          .collection('employees')
+          .doc(currentUser.uid) // Use the logged-in user's UID
+          .collection('leave')
+          .add(leaveData);
+
+      // Success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Leave registered successfully!')),
+      );
+
+      // Clear the form
+      _dateController.clear();
+      timeController.clear();
+      setState(() {});
+    } catch (e) {
+      // Error handling
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to register leave: $e')),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _dateController.dispose();
@@ -89,26 +151,8 @@ class _RegisterLeaveState extends State<RegisterLeave>
   }
 
   TextEditingController timeController = TextEditingController();
-  final TextEditingController campNameController = TextEditingController();
-  final TextEditingController organizationController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
-  final TextEditingController stateController = TextEditingController();
-  final TextEditingController pincodeController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController phoneNumber1Controller = TextEditingController();
-  final TextEditingController phoneNumber2Controller = TextEditingController();
-  final TextEditingController name2Controller = TextEditingController();
-  final TextEditingController phoneNumber1_2Controller =
-      TextEditingController();
-  final TextEditingController positionController = TextEditingController();
-  final TextEditingController position2Controller = TextEditingController();
-  final TextEditingController phoneNumber2_2Controller =
-      TextEditingController();
-  final TextEditingController totalSquareFeetController =
-      TextEditingController();
-  final TextEditingController noOfPatientExpectedController =
-      TextEditingController();
+  final TextEditingController leaveTypeController = TextEditingController();
+  final TextEditingController otherReasonController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -216,7 +260,9 @@ class _RegisterLeaveState extends State<RegisterLeave>
                     Center(
                         child: CustomButton(
                       text: 'Register',
-                      onPressed: () {},
+                      onPressed: () {
+                        _registerLeave();
+                      },
                     )),
                   ],
                 ),
@@ -230,55 +276,53 @@ class _RegisterLeaveState extends State<RegisterLeave>
 
   List<Widget> _buildFormFields() {
     List<Widget> fields = [
-
-
       SizedBox(height: 20),
       CustomDropdownFormField(
         labelText: 'Leave Type',
-        value: campPlanselectedValue,
-        items: campPlanType,
+        value: leaveTypeValue,
+        items: leaveType,
         onChanged: (value) {
           setState(() {
-            campPlanselectedValue = value;
+            leaveTypeValue = value;
           });
         },
       ),
       SizedBox(height: 20),
       CustomDropdownFormField(
         labelText: 'Last Leave Taken',
-        value: lastselectedValue,
-        items: lastCampDone,
+        value: lastLeaveTakenvalue,
+        items: lastLeaveTaken,
         onChanged: (value) {
           setState(() {
-            lastselectedValue = value;
+            lastLeaveTakenvalue = value;
           });
         },
       ),
       SizedBox(height: 20),
       CustomDropdownFormField(
         labelText: 'Can you able to work from home',
-        value: _selectedValue,
-        items: _wfh,
+        value: workFromHomeValue,
+        items: workFromHome,
         onChanged: (value) {
           setState(() {
-            _selectedValue = value;
+            workFromHomeValue = value;
           });
         },
       ),
       SizedBox(height: 20),
       CustomDropdownFormField(
         labelText: 'Reason for your leave',
-        value: _selectedValue2,
-        items: _options,
+        value: reasonForLeaveValue,
+        items: reasonForLeave,
         onChanged: (value) {
           setState(() {
-            _selectedValue2 = value;
+            reasonForLeaveValue = value;
           });
         },
       ),
       SizedBox(height: 20),
       _buildCustomTextFormField(
-          'Other Reason', Icons.note_alt_outlined, phoneNumber2Controller),
+          'Other Reason', Icons.note_alt_outlined, otherReasonController),
     ];
     return fields;
   }

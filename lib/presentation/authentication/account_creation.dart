@@ -49,18 +49,6 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
   ];
   String? selectedRole;
 
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile =
-        await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
-
   // Date selection method
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -119,26 +107,19 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
         password: passwordController.text,
       );
 
-      // If image is selected, upload it to Firebase Storage
-      String? imageUrl;
-      if (_image != null) {
-        try {
-          final fileName = '${userCredential.user?.uid}_profile_pic';
-          final ref = _storage.ref().child('profile_images/$fileName');
-          await ref.putFile(_image!); // Upload the file to Firebase Storage
-          imageUrl =
-              await ref.getDownloadURL(); // Get the URL of the uploaded image
-        } catch (e) {
-          _showSnackBar("Image upload failed: ${e.toString()}");
-          return; // Stop further processing if upload fails
-        }
-      }
+      // Get the user ID from the created user
+      String? userId = userCredential.user?.uid;
 
+      if (userId == null) {
+        _showSnackBar("Failed to retrieve user ID");
+        return;
+      }
       // Save employee data to Firestore
       await _firestore
           .collection('employees')
           .doc(userCredential.user?.uid)
           .set({
+        'employeeDocId': userId,
         'firstName': firstNameController.text.toLowerCase().trim(),
         'lastName': lastNameController.text.toLowerCase().trim(),
         'dob': dobController.text,
@@ -157,7 +138,6 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
         'branch': BankBranchController.text,
         'password': passwordController.text,
         'isActive': true, // Add the isActive field and set to true
-        'imageUrl': imageUrl, // Add the image URL if available
       });
 
       // Show success snackbar
@@ -252,17 +232,14 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
                     fontFamily: 'LeagueSpartan',
                   ),
                 ),
-                SizedBox(height: 30),
+                SizedBox(height: 10),
                 Center(
                   child: GestureDetector(
                     onTap: () {
                       print("Avatar tapped");
-                      _pickImage();
                     },
                     child: CircleAvatar(
-                      backgroundImage: _image == null
-                          ? AssetImage('assets/logo.jpg')
-                          : FileImage(_image!) as ImageProvider,
+                      backgroundImage: AssetImage('assets/logo.jpg'),
                       radius: 60,
                     ),
                   ),
