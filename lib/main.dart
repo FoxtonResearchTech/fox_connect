@@ -2,10 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_connect/presentation/authentication/account_creation.dart';
 import 'package:fox_connect/presentation/task/task_registration.dart';
+import 'package:fox_connect/widget/admin_bottom_nav_bar.dart';
 import 'package:fox_connect/widget/bottom_nav_bar.dart';
 import 'package:fox_connect/widget/connectivity_checker.dart';
 
 import 'firebase_options.dart';
+import 'presentation/admin/manage account/manage_accounts.dart';
 import 'presentation/authentication/login_page.dart';
 import 'presentation/leave/leave_registration.dart';
 import 'presentation/profile/employee_profile.dart';
@@ -25,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ConnectivityChecker(child: LoginScreen()),
+      home: ConnectivityChecker(child:ManageEmployeeAccountPage()),
     );
   }
 }
