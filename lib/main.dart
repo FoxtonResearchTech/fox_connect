@@ -7,7 +7,6 @@ import 'package:fox_connect/widget/bottom_nav_bar.dart';
 import 'package:fox_connect/widget/connectivity_checker.dart';
 
 import 'firebase_options.dart';
-import 'presentation/admin/manage account/manage_accounts.dart';
 import 'presentation/authentication/login_page.dart';
 import 'presentation/leave/leave_registration.dart';
 import 'presentation/profile/employee_profile.dart';
@@ -27,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ConnectivityChecker(child:ManageEmployeeAccountPage()),
+      home: ConnectivityChecker(child:AdminBottomNavBar()),
     );
   }
 }

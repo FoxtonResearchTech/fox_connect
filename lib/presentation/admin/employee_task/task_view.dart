@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fox_connect/presentation/admin/employee_task/download_report.dart';
 
 class TaskViewPage extends StatefulWidget {
   final Map<String, String> employee;
@@ -342,9 +343,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                         child: ElevatedButton.icon(
                           onPressed: () {
                             // Handle download action
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Download started!')),
-                            );
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=>DownloadTaskreport(employee:widget. employee)));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
