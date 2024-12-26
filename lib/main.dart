@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ConnectivityChecker(child:AdminBottomNavBar()),
+      home: ConnectivityChecker(child: AdminBottomNavBar()),
     );
   }
 }

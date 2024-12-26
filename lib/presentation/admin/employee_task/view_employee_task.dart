@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fox_connect/presentation/admin/employee_task/admin_task_search.dart';
 import 'package:fox_connect/presentation/admin/employee_task/task_view.dart';
 
 class ViewEmployeeTask extends StatefulWidget {
@@ -59,15 +60,29 @@ class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xFF00008B),
-                Color(0xFF00008B).withOpacity(1),
-                Color(0xFF00008B).withOpacity(0.8),
+                const Color(0xFF00008B),
+                const Color(0xFF00008B).withOpacity(1),
+                const Color(0xFF00008B).withOpacity(0.8),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
           ),
         ),
+        actions: [
+          IconButton(
+            padding: EdgeInsets.only(right: screenWidth * 0.02),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AdminTaskSearch()));
+            },
+            icon: Icon(
+              Icons.search,
+              color: Colors.white,
+              size: screenWidth * 0.08,
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -85,17 +100,22 @@ class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
             // Create an animation controller for scale effect with a slower duration
             final _scaleController = AnimationController(
               vsync: this,
-              duration: Duration(milliseconds: 400), // Slow down the scale animation
+              duration: const Duration(
+                  milliseconds: 400), // Slow down the scale animation
             );
-            final _scaleAnimation =
-            CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut);
+            final _scaleAnimation = CurvedAnimation(
+                parent: _scaleController, curve: Curves.easeInOut);
 
             // Add a listener to start the animation
             _scaleController.forward();
 
             return GestureDetector(
               onTap: () {
-                Navigator.push(context,MaterialPageRoute(builder: (context)=>TaskViewPage(employee: employee)));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            TaskViewPage(employee: employee)));
               },
               child: ScaleTransition(
                 scale: _scaleAnimation,
@@ -116,24 +136,24 @@ class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
                           backgroundColor: Colors.teal,
                           child: Text(
                             employee['name']![0], // First letter of the name
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Text(
                           employee['name']!,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           'Role: ${employee['role']}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             color: Colors.black87,
                             fontWeight: FontWeight.w500,
@@ -148,7 +168,7 @@ class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
                                 Icon(
                                   Icons.date_range,
                                   size: screenWidth * 0.05,
-                                  color: Color(0xffFF0000),
+                                  color: const Color(0xffFF0000),
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
@@ -167,7 +187,7 @@ class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
                                 Icon(
                                   Icons.watch_later,
                                   size: screenWidth * 0.05,
-                                  color: Color(0xffFF0000),
+                                  color: const Color(0xffFF0000),
                                 ),
                                 const SizedBox(width: 8),
                                 Text(

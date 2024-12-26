@@ -116,6 +116,7 @@ class _RegisterLeaveState extends State<RegisterLeave>
         'otherReason': otherReasonController.text.isNotEmpty
             ? otherReasonController.text
             : null, // Add only if it's filled
+        'leaveStatus': 'Waiting',
         'createdAt': FieldValue.serverTimestamp(),
       };
 

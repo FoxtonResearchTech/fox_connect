@@ -359,7 +359,7 @@ class _TaskRegistrationState extends State<TaskRegistration>
       _buildCustomTextFormField(
           'Project Name', FontAwesomeIcons.projectDiagram, projectName),
       SizedBox(height: 20),
-      _buildCustomTextFormField(
+      _buildTaskRegTextFormField(
           "Today's Report", FontAwesomeIcons.clipboard, todayReport),
       SizedBox(height: 20),
       _buildRadioOption('Are You facing any issue:', _options, _selectedValue,
@@ -370,7 +370,7 @@ class _TaskRegistrationState extends State<TaskRegistration>
       }),
       SizedBox(height: 20),
       _selectedValue == "Yes"
-          ? _buildCustomTextFormField('Tell us about the issue',
+          ? _buildTaskRegTextFormField('Tell us about the issue',
               Icons.support_agent, tellUsAboutTheIssue)
           : SizedBox()
     ];
@@ -380,6 +380,21 @@ class _TaskRegistrationState extends State<TaskRegistration>
   Widget _buildCustomTextFormField(
       String label, IconData icon, TextEditingController controller) {
     return CustomTextFormField(
+      controller: controller,
+      labelText: label,
+      icon: icon,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please fill out this field';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildTaskRegTextFormField(
+      String label, IconData icon, TextEditingController controller) {
+    return TaskRegTextFormField(
       controller: controller,
       labelText: label,
       icon: icon,

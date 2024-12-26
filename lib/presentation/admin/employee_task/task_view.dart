@@ -10,7 +10,8 @@ class TaskViewPage extends StatefulWidget {
   _TaskViewPageState createState() => _TaskViewPageState();
 }
 
-class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderStateMixin {
+class _TaskViewPageState extends State<TaskViewPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
@@ -27,7 +28,8 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-    _slideAnimation = Tween<Offset>(begin: Offset(0, 0.5), end: Offset(0, 0)).animate(
+    _slideAnimation =
+        Tween<Offset>(begin: Offset(0, 0.5), end: Offset(0, 0)).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
     _fadeInAnimation = Tween<double>(begin: 0, end: 1).animate(
@@ -117,7 +119,8 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                         radius: 55,
                         backgroundColor: Color(0xFF00008B),
                         child: Text(
-                          widget.employee['name']![0], // First letter of the name
+                          widget
+                              .employee['name']![0], // First letter of the name
                           style: TextStyle(
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
@@ -343,7 +346,11 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                         child: ElevatedButton.icon(
                           onPressed: () {
                             // Handle download action
-                            Navigator.push(context,MaterialPageRoute(builder: (context)=>DownloadTaskreport(employee:widget. employee)));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DownloadTaskreport(
+                                        employee: widget.employee)));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
@@ -356,7 +363,8 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                           icon: Icon(Icons.download, size: 24),
                           label: Text(
                             'Download',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),

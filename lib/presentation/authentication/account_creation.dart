@@ -26,6 +26,7 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
   final TextEditingController dobController = TextEditingController();
   final TextEditingController positionController = TextEditingController();
   final TextEditingController empCodeController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController lane1Controller = TextEditingController();
   final TextEditingController lane2Controller = TextEditingController();
   final TextEditingController stateController = TextEditingController();
@@ -97,7 +98,7 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
     }
 
     // Construct email from empCode
-    String email = '${empCodeController.text}@gmail.com';
+    String email = '${emailController.text}@gmail.com';
 
     try {
       // Register with Firebase Authentication using constructed email and password
@@ -335,7 +336,7 @@ class _AdminAddEmployeeState extends State<AdminAddEmployee> {
                 SizedBox(height: 30),
                 CustomTextFormField(
                   labelText: 'Primary Email',
-                  controller: empCodeController,
+                  controller: emailController,
                 ),
                 SizedBox(height: 20),
                 Text(
