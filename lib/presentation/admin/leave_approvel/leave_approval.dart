@@ -232,7 +232,6 @@ class _LeaveApprovelState extends State<LeaveApprovel>
                               screenWidth,
                               leaveItem['leaveType'] ?? "Unknown",
                             ),
-
                             ..._buildInfoText(
                               screenWidth,
                               leaveItem['lastLeaveTaken'] ?? "Pending",
@@ -278,7 +277,45 @@ class _LeaveApprovelState extends State<LeaveApprovel>
                                 ElevatedButton.icon(
                                   onPressed: isLoading
                                       ? null
-                                      : () => print("Rejected"),
+                                      : () async {
+                                          setState(() {
+                                            isLoading = true;
+                                          });
+                                          try {
+                                            // Assuming leaveItem contains employeeDocId and leaveDocId
+                                            String employeeId =
+                                                leaveItem['employeeId'];
+                                            String leaveId =
+                                                leaveItem['leaveId'];
+
+                                            await FirebaseFirestore.instance
+                                                .collection('employees')
+                                                .doc(employeeId)
+                                                .collection('leave')
+                                                .doc(leaveId)
+                                                .update({
+                                              'leaveStatus': 'Rejected'
+                                            });
+
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      'Leave rejected successfully.')),
+                                            );
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      'Failed to reject leave: $e')),
+                                            );
+                                          } finally {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          }
+                                        },
                                   icon: const Icon(Icons.close,
                                       color: Colors.white, size: 28),
                                   label: const Text('Reject',
@@ -314,7 +351,6 @@ class _LeaveApprovelState extends State<LeaveApprovel>
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Expanded(
             child: Text(
               data,

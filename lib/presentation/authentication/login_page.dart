@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fox_connect/presentation/leave/status.dart';
 import 'package:fox_connect/presentation/task/task_registration.dart';
+import 'package:fox_connect/widget/admin_bottom_nav_bar.dart';
+import 'package:fox_connect/widget/bottom_nav_bar.dart';
 import 'package:fox_connect/widget/connectivity_checker.dart';
 import 'package:fox_connect/widget/custom_button.dart';
 
@@ -61,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   void _login() async {
-    final email = _emailController.text.trim();
+    final email = _emailController.text.trim() + '@gmail.com';
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
@@ -81,32 +83,43 @@ class _LoginScreenState extends State<LoginScreen>
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
 
-      // Fetching user role from Firestore
+      // Fetching user document from Firestore
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('employees')
           .doc(userCredential.user!.uid)
           .get();
 
       if (userDoc.exists) {
-        String role =
-            userDoc['roles']; // Assuming Firestore document has a 'role' field
-        print(role);
+        bool isActive =
+            userDoc['isActive'] ?? false; // Check the `isActive` field
+        String role = userDoc['roles'] ?? ''; // Fetch the role field
+
+        if (!isActive) {
+          setState(() {
+            _errorMessage = "Your account is not active. Contact support.";
+          });
+          return;
+        }
 
         // Navigate based on role
         if (role == 'Flutter Developer') {
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => LeaveStatus()),
+            MaterialPageRoute(builder: (context) => EmployeeBottomNavBar()),
           );
         } else if (role == 'Administrator') {
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => TaskRegistration()),
+            MaterialPageRoute(builder: (context) => AdminBottomNavBar()),
           );
+        } else {
+          setState(() {
+            _errorMessage = "User role not recognized. Contact support.";
+          });
         }
       } else {
         setState(() {
-          _errorMessage = "User role not found. Contact support.";
+          _errorMessage = "User document not found. Contact support.";
         });
       }
     } on FirebaseAuthException catch (e) {

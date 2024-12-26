@@ -3,6 +3,8 @@ import 'package:fox_connect/widget/connectivity_checker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../authentication/login_page.dart';
+
 class EmployeeProfilePage extends StatefulWidget {
   @override
   _EmployeeProfilePage createState() => _EmployeeProfilePage();
@@ -295,27 +297,44 @@ class _EmployeeProfilePage extends State<EmployeeProfilePage>
                                                     onPressed: () =>
                                                         Navigator.pop(
                                                             context, false),
-                                                    child: const Text('Cancel',
-                                                        style: TextStyle(
-                                                          color: Colors.blue,
-                                                          fontFamily:
-                                                              'LeagueSpartan',
-                                                        )),
+                                                    child: const Text(
+                                                      'Cancel',
+                                                      style: TextStyle(
+                                                        color: Colors.blue,
+                                                        fontFamily:
+                                                            'LeagueSpartan',
+                                                      ),
+                                                    ),
                                                   ),
                                                   TextButton(
-                                                    onPressed: () {},
-                                                    child: const Text('Logout',
-                                                        style: TextStyle(
-                                                          color: Colors.blue,
-                                                          fontFamily:
-                                                              'LeagueSpartan',
-                                                        )),
+                                                    onPressed: () {
+                                                      Navigator.pop(
+                                                          context, true);
+                                                    },
+                                                    child: const Text(
+                                                      'Logout',
+                                                      style: TextStyle(
+                                                        color: Colors.blue,
+                                                        fontFamily:
+                                                            'LeagueSpartan',
+                                                      ),
+                                                    ),
                                                   ),
                                                 ],
                                               );
                                             },
                                           );
-                                          if (confirmLogout == true) {}
+                                          if (confirmLogout == true) {
+                                            await FirebaseAuth.instance
+                                                .signOut();
+                                            // Navigate to LoginScreen
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      LoginScreen()),
+                                            );
+                                          }
                                         },
                                         child: ProfileInfoTile(
                                           icon: Icons.login,
