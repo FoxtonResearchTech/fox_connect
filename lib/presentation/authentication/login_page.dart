@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fox_connect/presentation/leave/status.dart';
 import 'package:fox_connect/presentation/task/task_registration.dart';
 import 'package:fox_connect/widget/admin_bottom_nav_bar.dart';
@@ -45,11 +45,11 @@ class _LoginScreenState extends State<LoginScreen>
 
     _slideInAnimation =
         Tween<Offset>(begin: Offset(0, 1), end: Offset.zero).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
+          CurvedAnimation(
+            parent: _controller,
+            curve: Curves.easeInOut,
+          ),
+        );
 
     _controller.forward();
   }
@@ -137,7 +137,26 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  @override
+  void _showCustomSnackBar(String message, {Color backgroundColor = Colors.red}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: backgroundColor,
+        duration: Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        margin: EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(vertical: 12),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ConnectivityChecker(
@@ -145,114 +164,117 @@ class _LoginScreenState extends State<LoginScreen>
         backgroundColor: Colors.white,
         body: _isLoading
             ? Center(
-                child: CircularProgressIndicator(),
-              )
+          child:  SpinKitCubeGrid(
+          color:Color(0xffFF0000),
+          size: 50.0,
+        ),
+        )
             : SingleChildScrollView(
-                child: Center(
-                  child: FadeTransition(
-                    opacity: _fadeInAnimation,
-                    child: SlideTransition(
-                      position: _slideInAnimation,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Logo and Title
-                            SizedBox(
-                              height: 120,
-                            ),
-                            Image.asset("assets/logo.jpg").animate().scale(
-                                duration: const Duration(milliseconds: 1200),
-                                curve: Curves.elasticOut),
-
-                            if (_errorMessage != null) ...[
-                              SizedBox(height: 10),
-                              Text(
-                                _errorMessage!,
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 16,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-
-                            SizedBox(height: 20),
-
-                            // Username Field
-                            TextField(
-                              controller: _emailController,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.person,
-                                    color: Color(0xFF00008B)),
-                                labelText: 'Employee Code',
-                                labelStyle: TextStyle(
-                                  color: Color(0xFF00008B),
-                                  fontFamily: 'LeagueSpartan',
-                                ),
-                                filled: true,
-                                fillColor: Color(0xFF00008B).withOpacity(0.1),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
-                            ).animate().fade(
-                                duration: const Duration(milliseconds: 1000),
-                                curve: Curves.easeInOut),
-
-                            SizedBox(height: 20),
-
-                            // Password Field
-                            TextField(
-                              controller: _passwordController,
-                              decoration: InputDecoration(
-                                prefixIcon:
-                                    Icon(Icons.lock, color: Color(0xFF00008B)),
-                                labelText: 'Password',
-                                labelStyle: TextStyle(
-                                  color: Color(0xFF00008B),
-                                  fontFamily: 'LeagueSpartan',
-                                ),
-                                filled: true,
-                                fillColor: Color(0xFF00008B).withOpacity(0.1),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
-                              obscureText: true,
-                            ).animate().fade(
-                                delay: const Duration(milliseconds: 200),
-                                duration: const Duration(milliseconds: 1000),
-                                curve: Curves.easeInOut),
-
-                            SizedBox(height: 30),
-
-                            // Login Button
-                            CustomButton(
-                                    text: "Login",
-                                    onPressed: () {
-                                      _login();
-                                    })
-                                .animate()
-                                .move(
-                                    delay: const Duration(milliseconds: 400),
-                                    duration:
-                                        const Duration(milliseconds: 1000),
-                                    curve: Curves.easeInOut),
-
-                            SizedBox(height: 20),
-                          ],
-                        ),
+          child: Center(
+            child: FadeTransition(
+              opacity: _fadeInAnimation,
+              child: SlideTransition(
+                position: _slideInAnimation,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Logo and Title
+                      SizedBox(
+                        height: 120,
                       ),
-                    ),
+                      Image.asset("assets/logo.jpg").animate().scale(
+                          duration: const Duration(milliseconds: 1200),
+                          curve: Curves.elasticOut),
+
+                      if (_errorMessage != null) ...[
+                        SizedBox(height: 10),
+                        Text(
+                          _errorMessage!,
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+
+                      SizedBox(height: 20),
+
+                      // Username Field
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.person,
+                              color: Color(0xFF00008B)),
+                          labelText: 'Employee Code',
+                          labelStyle: TextStyle(
+                            color: Color(0xFF00008B),
+                            fontFamily: 'LeagueSpartan',
+                          ),
+                          filled: true,
+                          fillColor: Color(0xFF00008B).withOpacity(0.1),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ).animate().fade(
+                          duration: const Duration(milliseconds: 1000),
+                          curve: Curves.easeInOut),
+
+                      SizedBox(height: 20),
+
+                      // Password Field
+                      TextField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          prefixIcon:
+                          Icon(Icons.lock, color: Color(0xFF00008B)),
+                          labelText: 'Password',
+                          labelStyle: TextStyle(
+                            color: Color(0xFF00008B),
+                            fontFamily: 'LeagueSpartan',
+                          ),
+                          filled: true,
+                          fillColor: Color(0xFF00008B).withOpacity(0.1),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        obscureText: true,
+                      ).animate().fade(
+                          delay: const Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 1000),
+                          curve: Curves.easeInOut),
+
+                      SizedBox(height: 30),
+
+                      // Login Button
+                      CustomButton(
+                          text: "Login",
+                          onPressed: () {
+                            _login();
+                          })
+                          .animate()
+                          .move(
+                          delay: const Duration(milliseconds: 400),
+                          duration:
+                          const Duration(milliseconds: 1000),
+                          curve: Curves.easeInOut),
+
+                      SizedBox(height: 20),
+                    ],
                   ),
                 ),
               ),
+            ),
+          ),
+        ),
       ),
     );
   }

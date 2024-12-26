@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fox_connect/widget/admin_bottom_nav_bar.dart';
 import 'package:fox_connect/widget/bottom_nav_bar.dart';
 import 'package:fox_connect/widget/connectivity_checker.dart';
@@ -85,7 +86,10 @@ class RoleBasedNavigator extends StatelessWidget {
           return Scaffold(
             backgroundColor: Colors.white,
             body: Center(
-              child: CircularProgressIndicator(),
+              child: SpinKitCubeGrid(
+                color:Color(0xffFF0000),
+                size: 50.0,
+              ),
             ),
           );
         }
@@ -96,7 +100,7 @@ class RoleBasedNavigator extends StatelessWidget {
           if (role == 'Flutter Developer') {
             return EmployeeBottomNavBar(); // Navigate to the leave status screen
           } else if (role == 'Administrator') {
-            return AdminBottomNavBar(); // Navigate to the task registration screen
+            return LoginScreen(); // Navigate to the task registration screen
           } else {
             return const Scaffold(
               body: Center(
