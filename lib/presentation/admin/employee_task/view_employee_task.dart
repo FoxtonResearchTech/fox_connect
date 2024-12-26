@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fox_connect/presentation/admin/employee_task/admin_task_search.dart';
 import 'package:intl/intl.dart'; // For date formatting
 import 'package:fox_connect/presentation/admin/employee_task/task_view.dart';
@@ -51,6 +52,7 @@ class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
 
     return Scaffold(
       appBar: AppBar(
+       automaticallyImplyLeading: false,
         title: const Text(
           'View Tasks',
           style: TextStyle(
@@ -101,7 +103,12 @@ class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
               FirebaseFirestore.instance.collection('employees').snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(
+                child: const SpinKitCubeGrid(
+                  color:Color(0xffFF0000),
+                  size: 50.0,
+                ),
+              );
             }
 
             if (snapshot.hasError) {
