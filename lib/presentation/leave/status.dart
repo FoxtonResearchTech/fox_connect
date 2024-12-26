@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_connect/widget/connectivity_checker.dart';
-import 'package:lottie/lottie.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
 class LeaveStatus extends StatefulWidget {
@@ -24,15 +25,18 @@ class _LeaveStatusState extends State<LeaveStatus>
   @override
   void dispose() {
     _controller.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Screen size parameters
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    // Mock userId, replace with your method to fetch current user's ID
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+
+// Get the current user's UID
+    String? userId = _auth.currentUser?.uid;
+
+// Optional: Get other user details
 
     return ConnectivityChecker(
       child: Scaffold(
@@ -52,194 +56,514 @@ class _LeaveStatusState extends State<LeaveStatus>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                Color(0xFF00008B),
-                Color(0xFF00008B).withOpacity(1),
-                Color(0xFF00008B).withOpacity(0.8)
+                  Color(0xFF00008B),
+                  Color(0xFF00008B).withOpacity(1),
+                  Color(0xFF00008B).withOpacity(0.8),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
           ),
-          actions: [],
         ),
-        body: ListView.builder(
-          itemCount: 5,
-          itemBuilder: (BuildContext context, int index) {
-            Animation<double> animation = CurvedAnimation(
-              parent: _controller,
-              curve: Interval(
-                (1 / 5) * index, // Animate each item sequentially
-                1.0,
-                curve: Curves.easeOut,
-              ),
-            );
-            _controller.forward(); // Start the animation when building
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('employees')
+              .doc(userId)
+              .collection('leave')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-            return GestureDetector(
-                onTap: () async {},
-                child: FadeTransition(
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(child: Text('No leave records found.'));
+            }
+
+            final leaveDocs = snapshot.data!.docs;
+
+            return ListView.builder(
+              itemCount: leaveDocs.length,
+              itemBuilder: (BuildContext context, int index) {
+                final leaveData =
+                    leaveDocs[index].data() as Map<String, dynamic>;
+
+                Animation<double> animation = CurvedAnimation(
+                  parent: _controller,
+                  curve: Interval(
+                    (1 / leaveDocs.length) * index,
+                    1.0,
+                    curve: Curves.easeOut,
+                  ),
+                );
+                _controller.forward();
+
+                return GestureDetector(
+                  onTap: () async {},
+                  child: FadeTransition(
                     opacity: animation,
                     child: SlideTransition(
                       position: Tween<Offset>(
-                        begin: const Offset(0, 0.2), // Start slightly below
-                        end: Offset.zero, // End at original position
+                        begin: const Offset(0, 0.2),
+                        end: Offset.zero,
                       ).animate(animation),
-                      child: Column(children: [
-                        // Information Container
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Container(
-                            height: screenHeight / 3, // Responsive height
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 2,
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.date_range,
-                                            size: screenWidth * 0.07,
-                                            color: Color(0xffFF0000),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            "12-1-2024",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'LeagueSpartan',
-                                              color: Colors.black54,
-                                              fontSize: screenWidth * 0.05,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.watch_later,
-                                            size: screenWidth * 0.07,
-                                            color: Color(0xffFF0000),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            '10:15 AM',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'LeagueSpartan',
-                                              color: Colors.black54,
-                                              fontSize: screenWidth * 0.05,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Container(
+                              height: MediaQuery.of(context).size.height / 2.5,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    spreadRadius: 2,
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
                                   ),
-                                  const SizedBox(height: 5),
-                                  ..._buildInfoText(
-                                    screenWidth,
-                                    "Full Day",
-                                  ),
-                                  ..._buildInfoText(
-                                    screenWidth,
-                                    '2 days ago',
-                                  ),
-                                  ..._buildInfoText(
-                                    screenWidth,
-                                    'Yes',
-                                  ),
-                                  ..._buildInfoText(
-                                    screenWidth,
-                                    'Sick Leave',
-                                  ),
-                                  // Horizontal Timeline Container
-                                  Container(
-                                    height:
-                                    screenHeight *
-                                        0.1,
-                                    width: double
-                                        .infinity,
-                                    child:
-                                    SingleChildScrollView(
-                                      scrollDirection:
-                                      Axis.horizontal,
-                                      child: Row(
-                                        children: [
-                                          _buildTimelineTile(
-                                            isFirst:
-                                            true,
-                                            color: Colors
-                                                .purple,
-                                            icon: Icons
-                                                .check,
-                                            text:
-                                            'Processing',
-                                            screenWidth:
-                                            screenWidth,
-                                            lineBeforeColor:
-                                            Colors.green,
-                                            lineAfterColor:
-                                            Colors.green,
-                                          ),
-                                          _buildTimelineTile(
-                                            color: Colors
-                                                .blue[600]!,
-                                            icon: Icons
-                                                .check,
-                                            text:
-                                            'Approved',
-                                            screenWidth:
-                                            screenWidth,
-                                            lineBeforeColor:
-                                            Colors.green,
-                                            lineAfterColor:
-                                            Colors.green,
-                                          ),
-                                          _buildTimelineTile(
-                                            isLast:
-                                            true,
-                                            color: Colors
-                                                .green,
-                                            icon: Icons
-                                                .check,
-                                            text:
-                                            'On Pay',
-                                            screenWidth:
-                                            screenWidth,
-                                            lineBeforeColor:
-                                            Colors.green,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
                                 ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.date_range,
+                                              size: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.07,
+                                              color: Color(0xffFF0000),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              leaveData['date'] ?? 'N/A',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontFamily: 'LeagueSpartan',
+                                                color: Colors.black54,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.05,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.watch_later,
+                                              size: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.07,
+                                              color: Color(0xffFF0000),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              leaveData['time'] ?? 'N/A',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontFamily: 'LeagueSpartan',
+                                                color: Colors.black54,
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.05,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 5),
+                                    ..._buildInfoText(
+                                      MediaQuery.of(context).size.width,
+                                      leaveData['leaveType'] ?? 'N/A',
+                                    ),
+                                    ..._buildInfoText(
+                                      MediaQuery.of(context).size.width,
+                                      leaveData['lastLeaveTaken'] ?? 'N/A',
+                                    ),
+                                    ..._buildInfoText(
+                                      MediaQuery.of(context).size.width,
+                                      leaveData['workFromHome'] ?? 'N/A',
+                                    ),
+                                    ..._buildInfoText(
+                                      MediaQuery.of(context).size.width,
+                                      leaveData['reason'] ?? 'N/A',
+                                    ),
+                                    ..._buildInfoText(
+                                      MediaQuery.of(context).size.width,
+                                      leaveData['otherReason'] ?? 'N/A',
+                                    ),
+                                    leaveData['leaveStatus'] == 'Accepted - Pay'
+                                        ? Container(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.1,
+                                            width: double.infinity,
+                                            child: SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Row(
+                                                children: [
+                                                  _buildTimelineTile(
+                                                    isFirst: true,
+                                                    color: Colors.purple,
+                                                    icon: Icons.check,
+                                                    text: 'Processing',
+                                                    screenWidth:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    lineBeforeColor:
+                                                        Colors.green,
+                                                    lineAfterColor:
+                                                        Colors.green,
+                                                  ),
+                                                  _buildTimelineTile(
+                                                    color: Colors.blue[600]!,
+                                                    icon: Icons.check,
+                                                    text: 'Approved',
+                                                    screenWidth:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    lineBeforeColor:
+                                                        Colors.green,
+                                                    lineAfterColor:
+                                                        Colors.green,
+                                                  ),
+                                                  _buildTimelineTile(
+                                                    isLast: true,
+                                                    color: Colors.green,
+                                                    icon: Icons.check,
+                                                    text: 'Pay',
+                                                    screenWidth:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    lineBeforeColor:
+                                                        Colors.green,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        : leaveData['leaveStatus'] == 'Waiting'
+                                            ? Container(
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.1,
+                                                width: double.infinity,
+                                                child: SingleChildScrollView(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  child: Row(
+                                                    children: [
+                                                      _buildTimelineTile(
+                                                        isFirst: true,
+                                                        color: Colors.purple,
+                                                        icon: Icons.check,
+                                                        text: 'Processing',
+                                                        screenWidth:
+                                                            MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width,
+                                                        lineBeforeColor:
+                                                            Colors.grey,
+                                                        lineAfterColor:
+                                                            Colors.grey,
+                                                      ),
+                                                      _buildTimelineTile(
+                                                        color:
+                                                            Colors.grey,
+                                                        icon: Icons.check,
+                                                        text: 'Approved',
+                                                        screenWidth:
+                                                            MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width,
+                                                        lineBeforeColor:
+                                                            Colors.grey,
+                                                        lineAfterColor:
+                                                            Colors.grey,
+                                                      ),
+                                                      _buildTimelineTile(
+                                                        isLast: true,
+                                                        color: Colors.grey,
+                                                        icon: Icons.check,
+                                                        text: 'Approved',
+                                                        screenWidth:
+                                                            MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width,
+                                                        lineBeforeColor:
+                                                            Colors.grey,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            : leaveData["leaveStatus"] == 'Rejected'
+                                                ? Container(
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height *
+                                                            0.1,
+                                                    width: double.infinity,
+                                                    child:
+                                                        SingleChildScrollView(
+                                                      scrollDirection:
+                                                          Axis.horizontal,
+                                                      child: Row(
+                                                        children: [
+                                                          _buildTimelineTile(
+                                                            isFirst: true,
+                                                            color:
+                                                                Colors.purple,
+                                                            icon: Icons.check,
+                                                            text: 'Processing',
+                                                            screenWidth:
+                                                                MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width,
+                                                            lineBeforeColor:
+                                                                Colors.green,
+                                                            lineAfterColor:
+                                                                Colors.green,
+                                                          ),
+                                                          _buildTimelineTile(
+
+                                                            color:
+                                                            Colors.blueAccent,
+                                                            icon: Icons.check,
+                                                            text: 'Viewed',
+                                                            screenWidth:
+                                                            MediaQuery.of(
+                                                                context)
+                                                                .size
+                                                                .width,
+                                                            lineBeforeColor:
+                                                            Colors.green,
+                                                            lineAfterColor:
+                                                            Colors.green,
+                                                          ),
+
+                                                          _buildTimelineTile(
+                                                            isLast: true,
+                                                            color: Colors
+                                                                .redAccent,
+                                                            icon: Icons.cancel,
+
+                                                            text: 'Rejected',
+                                                            screenWidth:
+                                                                MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width,
+                                                            lineBeforeColor:
+                                                                Colors.green,
+
+                                                          ),
+
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                : leaveData["leaveStatus"] == 'Accepted - Pay Off'
+                                                    ? Container(
+                                                        height: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .height *
+                                                            0.1,
+                                                        width: double.infinity,
+                                                        child:
+                                                            SingleChildScrollView(
+                                                          scrollDirection:
+                                                              Axis.horizontal,
+                                                          child: Row(
+                                                            children: [
+                                                              _buildTimelineTile(
+                                                                isFirst: true,
+                                                                color: Colors
+                                                                    .purple,
+                                                                icon:
+                                                                    Icons.check,
+                                                                text:
+                                                                    'Processing',
+                                                                screenWidth:
+                                                                    MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width,
+                                                                lineBeforeColor:
+                                                                    Colors
+                                                                        .green,
+                                                                lineAfterColor:
+                                                                    Colors
+                                                                        .green,
+                                                              ),
+                                                              _buildTimelineTile(
+                                                                color: Colors
+                                                                    .blue[600]!,
+                                                                icon:
+                                                                    Icons.check,
+                                                                text:
+                                                                    'Approved',
+                                                                screenWidth:
+                                                                    MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width,
+                                                                lineBeforeColor:
+                                                                    Colors
+                                                                        .green,
+                                                                lineAfterColor:
+                                                                    Colors
+                                                                        .green,
+                                                              ),
+                                                              _buildTimelineTile(
+                                                                isLast: true,
+                                                                color: Colors
+                                                                    .deepOrange,
+                                                                icon:
+                                                                    Icons.check,
+                                                                text: 'Pay Off',
+                                                                screenWidth:
+                                                                    MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width,
+                                                                lineBeforeColor:
+                                                                    Colors
+                                                                        .green,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : leaveData['leaveStatus'] == 'Accepted - Pay Half'
+                                                        ? Container(
+                                                            height: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height *
+                                                                0.1,
+                                                            width:
+                                                                double.infinity,
+                                                            child:
+                                                                SingleChildScrollView(
+                                                              scrollDirection:
+                                                                  Axis.horizontal,
+                                                              child: Row(
+                                                                children: [
+                                                                  _buildTimelineTile(
+                                                                    isFirst:
+                                                                        true,
+                                                                    color: Colors
+                                                                        .purple,
+                                                                    icon: Icons
+                                                                        .check,
+                                                                    text:
+                                                                        'Processing',
+                                                                    screenWidth:
+                                                                        MediaQuery.of(context)
+                                                                            .size
+                                                                            .width,
+                                                                    lineBeforeColor:
+                                                                        Colors
+                                                                            .green,
+                                                                    lineAfterColor:
+                                                                        Colors
+                                                                            .green,
+                                                                  ),
+                                                                  _buildTimelineTile(
+                                                                    color: Colors
+                                                                            .blue[
+                                                                        600]!,
+                                                                    icon: Icons
+                                                                        .check,
+                                                                    text:
+                                                                        'Approved',
+                                                                    screenWidth:
+                                                                        MediaQuery.of(context)
+                                                                            .size
+                                                                            .width,
+                                                                    lineBeforeColor:
+                                                                        Colors
+                                                                            .green,
+                                                                    lineAfterColor:
+                                                                        Colors
+                                                                            .green,
+                                                                  ),
+                                                                  _buildTimelineTile(
+                                                                    isLast:
+                                                                        true,
+                                                                    color: Colors
+                                                                        .yellow,
+                                                                    icon: Icons
+                                                                        .check,
+                                                                    text: 'Pay Half',
+                                                                    screenWidth:
+                                                                        MediaQuery.of(context)
+                                                                            .size
+                                                                            .width,
+                                                                    lineBeforeColor:
+                                                                        Colors
+                                                                            .green,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : Center(
+                                                            child: Text(
+                                                              "No Leave Data Found ",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontSize: 22),
+                                                            ),
+                                                          ),
+                                    const SizedBox(height: 20),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ]),
-                    )));
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
           },
         ),
       ),
@@ -263,31 +587,28 @@ class _LeaveStatusState extends State<LeaveStatus>
       isFirst: isFirst,
       isLast: isLast,
       indicatorStyle: IndicatorStyle(
-        width: screenWidth * 0.09, // Increased indicator size
+        width: screenWidth * 0.09,
         color: color,
         iconStyle: IconStyle(
           iconData: icon,
           color: Colors.white,
-          fontSize: screenWidth * 0.05, // Increased icon size
+          fontSize: screenWidth * 0.05,
         ),
       ),
       endChild: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8.0),
-        // Adjusted padding
         child: Text(
           text,
           style: TextStyle(
             fontWeight: FontWeight.w500,
             color: Colors.black54,
             fontFamily: 'LeagueSpartan',
-            fontSize:
-                screenWidth * 0.05, // Increased font size for timeline text
+            fontSize: screenWidth * 0.05,
           ),
         ),
       ),
       beforeLineStyle:
           LineStyle(color: lineBeforeColor ?? Colors.grey, thickness: 3),
-      // Slightly thicker lines
       afterLineStyle:
           LineStyle(color: lineAfterColor ?? Colors.grey, thickness: 3),
     );
@@ -302,7 +623,7 @@ class _LeaveStatusState extends State<LeaveStatus>
           fontFamily: 'LeagueSpartan',
           fontWeight: FontWeight.w500,
           color: Colors.black54,
-          fontSize: screenWidth * 0.05, // Responsive font size
+          fontSize: screenWidth * 0.05,
         ),
       ),
     ];

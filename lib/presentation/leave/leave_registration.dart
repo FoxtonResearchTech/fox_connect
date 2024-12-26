@@ -90,8 +90,28 @@ class _RegisterLeaveState extends State<RegisterLeave>
         reasonForLeaveValue == null) {
       // Show an error message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill out all required fields.')),
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Please fill out all required fields.',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.orangeAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: Duration(seconds: 3),
+        ),
       );
+
       return;
     }
 
@@ -132,8 +152,28 @@ class _RegisterLeaveState extends State<RegisterLeave>
       await leaveDocRef.update({'leaveId': leaveDocRef.id});
       // Success message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Leave registered successfully!')),
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle_outline, color: Colors.white, size: 24),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Leave registered successfully!',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: Duration(seconds: 3),
+        ),
       );
+
 
       // Clear the form
       _dateController.clear();
@@ -142,8 +182,28 @@ class _RegisterLeaveState extends State<RegisterLeave>
     } catch (e) {
       // Error handling
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to register leave: $e')),
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.white, size: 24),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Failed to register leave: $e',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: Duration(seconds: 3),
+        ),
       );
+
     }
   }
 

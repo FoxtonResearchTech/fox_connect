@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fox_connect/widget/connectivity_checker.dart';
 
 class LeaveApprovel extends StatefulWidget {
@@ -124,6 +125,7 @@ class _LeaveApprovelState extends State<LeaveApprovel>
     return ConnectivityChecker(
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Text(
             'Leave Approval',
             style: TextStyle(
@@ -154,7 +156,12 @@ class _LeaveApprovelState extends State<LeaveApprovel>
           stream: _fetchLeaveDataStream(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(
+                child: const SpinKitCubeGrid(
+                  color:Color(0xffFF0000),
+                  size: 50.0,
+                ),
+              );
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -166,9 +173,9 @@ class _LeaveApprovelState extends State<LeaveApprovel>
                 itemCount: leaveData.length,
                 itemBuilder: (BuildContext context, int index) {
                   var leaveItem = leaveData[index];
-                  return Padding(
+                  return  Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Container(
+                    child:   leaveItem['leaveStatus'] == 'Waiting' ? Container(
                       height: screenHeight / 1.8,
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -404,7 +411,7 @@ class _LeaveApprovelState extends State<LeaveApprovel>
                           ],
                         ),
                       ),
-                    ),
+                    ) : SizedBox(),
                   );
                 },
               );

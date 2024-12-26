@@ -92,8 +92,28 @@ class _TaskRegistrationState extends State<TaskRegistration>
     if (_assignDateController.text.isEmpty ||
         _assignTimeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill out all required fields.')),
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Please fill out all required fields.',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.orangeAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: Duration(seconds: 3),
+        ),
       );
+
       return;
     }
 
@@ -133,7 +153,27 @@ class _TaskRegistrationState extends State<TaskRegistration>
 
       // Success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Task registered successfully!')),
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white, size: 24),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Task registered successfully!',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: Duration(seconds: 3),
+
+        ),
       );
 
       // Clear the form
@@ -149,8 +189,39 @@ class _TaskRegistrationState extends State<TaskRegistration>
     } catch (e) {
       // Error handling
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to register task: $e')),
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.white, size: 24),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Failed to register task: $e',
+                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'Retry',
+            textColor: Colors.white,
+            onPressed: () {
+              _submitTask();
+              // Add your retry logic here
+              print('Retry task registration');
+            },
+          ),
+        ),
       );
+
     }
   }
 
@@ -357,10 +428,10 @@ class _TaskRegistrationState extends State<TaskRegistration>
   List<Widget> _buildFormFields() {
     List<Widget> fields = [
       _buildCustomTextFormField(
-          'Project Name', FontAwesomeIcons.projectDiagram, projectName),
+          'Project Name', FontAwesomeIcons.projectDiagram, projectName,context),
       SizedBox(height: 20),
       _buildTaskRegTextFormField(
-          "Today's Report", FontAwesomeIcons.clipboard, todayReport),
+          "Today's Report", FontAwesomeIcons.clipboard, todayReport,context),
       SizedBox(height: 20),
       _buildRadioOption('Are You facing any issue:', _options, _selectedValue,
           (value) {
@@ -371,41 +442,40 @@ class _TaskRegistrationState extends State<TaskRegistration>
       SizedBox(height: 20),
       _selectedValue == "Yes"
           ? _buildTaskRegTextFormField('Tell us about the issue',
-              Icons.support_agent, tellUsAboutTheIssue)
+              Icons.support_agent, tellUsAboutTheIssue,context)
           : SizedBox()
     ];
     return fields;
   }
 
   Widget _buildCustomTextFormField(
-      String label, IconData icon, TextEditingController controller) {
+      String label, IconData icon, TextEditingController controller, BuildContext context) {
     return CustomTextFormField(
       controller: controller,
       labelText: label,
       icon: icon,
-      validator: (value) {
+      onSaved: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please fill out this field';
+          _showAwesomeSnackbar(context, 'Please fill out this field');
         }
-        return null;
       },
     );
   }
 
   Widget _buildTaskRegTextFormField(
-      String label, IconData icon, TextEditingController controller) {
+      String label, IconData icon, TextEditingController controller, BuildContext context) {
     return TaskRegTextFormField(
       controller: controller,
       labelText: label,
       icon: icon,
-      validator: (value) {
+      onSaved: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please fill out this field';
+          _showAwesomeSnackbar(context, 'Please fill out this field');
         }
-        return null;
       },
     );
   }
+
 
   Widget _buildRadioOption(String label, List<String> options,
       String? selectedValue, ValueChanged<String?> onChanged) {
@@ -442,4 +512,27 @@ class _TaskRegistrationState extends State<TaskRegistration>
       ],
     );
   }
+  void _showAwesomeSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.error, color: Colors.white),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
 }
