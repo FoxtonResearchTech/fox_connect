@@ -54,50 +54,63 @@ class _LeaveApprovelState extends State<LeaveApprovel>
   }
 
   // Show payment options dialog
-  void _showPaymentOptionsDialog() {
-    showDialog(
+  Future<String?> _showPaymentOptionsDialog() async {
+    return showDialog<String>(
       context: context,
       builder: (BuildContext context) {
+        String? tempOption = _paymentOption; // Temporary selection
         return AlertDialog(
           title: const Text("Select Payment Option"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<String>(
-                value: 'Pay Off',
-                groupValue: _paymentOption,
-                title: const Text('Pay Off'),
-                onChanged: (value) {
-                  setState(() {
-                    _paymentOption = value;
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-              RadioListTile<String>(
-                value: 'Pay Half',
-                groupValue: _paymentOption,
-                title: const Text('Pay Half'),
-                onChanged: (value) {
-                  setState(() {
-                    _paymentOption = value;
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-              RadioListTile<String>(
-                value: 'Pay',
-                groupValue: _paymentOption,
-                title: const Text('Pay'),
-                onChanged: (value) {
-                  setState(() {
-                    _paymentOption = value;
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setDialogState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RadioListTile<String>(
+                    value: 'Pay Off',
+                    groupValue: tempOption,
+                    title: const Text('Pay Off'),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        tempOption = value; // Update the local selection
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    value: 'Pay Half',
+                    groupValue: tempOption,
+                    title: const Text('Pay Half'),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        tempOption = value;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    value: 'Pay',
+                    groupValue: tempOption,
+                    title: const Text('Pay'),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        tempOption = value;
+                      });
+                    },
+                  ),
+                ],
+              );
+            },
           ),
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.pop(context, tempOption), // Return the selection
+              child: const Text("OK"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, null), // Cancel
+              child: const Text("Cancel"),
+            ),
+          ],
         );
       },
     );
@@ -259,12 +272,68 @@ class _LeaveApprovelState extends State<LeaveApprovel>
                                 ElevatedButton.icon(
                                   onPressed: isLoading
                                       ? null
-                                      : _showPaymentOptionsDialog,
+                                      : () async {
+                                          String? selectedOption =
+                                              await _showPaymentOptionsDialog();
+
+                                          if (selectedOption == null) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'Please select a payment option.')),
+                                            );
+                                            return;
+                                          }
+
+                                          setState(() {
+                                            _paymentOption = selectedOption;
+                                            isLoading = true;
+                                          });
+
+                                          try {
+                                            String employeeId =
+                                                leaveItem['employeeId'];
+                                            String leaveId =
+                                                leaveItem['leaveId'];
+
+                                            await FirebaseFirestore.instance
+                                                .collection('employees')
+                                                .doc(employeeId)
+                                                .collection('leave')
+                                                .doc(leaveId)
+                                                .update({
+                                              'leaveStatus':
+                                                  'Accepted - $_paymentOption',
+                                            });
+
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Leave accepted with status: $_paymentOption.'),
+                                              ),
+                                            );
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      'Failed to accept leave: $e')),
+                                            );
+                                          } finally {
+                                            setState(() {
+                                              isLoading = false;
+                                            });
+                                          }
+                                        },
                                   icon: const Icon(Icons.check,
                                       color: Colors.white, size: 28),
-                                  label: const Text('Accept',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 18)),
+                                  label: const Text(
+                                    'Accept',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 18),
+                                  ),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.green,
                                     padding: const EdgeInsets.symmetric(
