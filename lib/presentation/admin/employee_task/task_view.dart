@@ -115,9 +115,9 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                       backgroundColor: Colors.white,
                       child: CircleAvatar(
                         radius: 55,
-                        backgroundColor: Color(0xFF00008B),
+                        backgroundColor: Colors.teal,
                         child: Text(
-                          widget.employee['name']![0], // First letter of the name
+                          widget.employee['firstName']![0].toString(), // First letter of the name
                           style: TextStyle(
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
@@ -140,7 +140,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                   children: [
                     Center(
                       child: Text(
-                        widget.employee['name']!,
+                        widget.employee['firstName']!.toString(),
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -150,7 +150,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                     SizedBox(height: 10),
                     Center(
                       child: Text(
-                        widget.employee['role']!,
+                        widget.employee['roles']!.toString(),
                         style: TextStyle(
                           fontSize: 18,
                           fontStyle: FontStyle.italic,
@@ -173,7 +173,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                     ),
                     SizedBox(height: 10),
                     Text(
-                      "Hospital Management System", // Example project name
+                      widget.employee['projectName'].toString(), // Example project name
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.black54,
@@ -217,7 +217,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  "12-1-2024",
+                                 widget.employee['taskAssignDate']!.toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'LeagueSpartan',
@@ -236,7 +236,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  "12-1-2024",
+                                  widget.employee['taskDeadlineDate']!.toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'LeagueSpartan',
@@ -261,7 +261,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '10:15 AM',
+                                  widget.employee['taskAssignTime']!.toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'LeagueSpartan',
@@ -280,7 +280,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '10:15 AM',
+                                  widget.employee['taskDeadlineTime']!.toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'LeagueSpartan',
@@ -306,7 +306,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                     TextField(
                       maxLines: 3,
                       decoration: InputDecoration(
-                        hintText: "Enter today's progress...",
+                        hintText:   widget.employee['todaysReport']!.toString(),
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -329,7 +329,7 @@ class _TaskViewPageState extends State<TaskViewPage> with SingleTickerProviderSt
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: "Describe any issue...",
+                              hintText:widget.employee['issueDetails']!.toString(),
                               border: OutlineInputBorder(),
                             ),
                           ),

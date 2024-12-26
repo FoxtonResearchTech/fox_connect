@@ -8,9 +8,9 @@ class LeaveApprovel extends StatefulWidget {
   State<LeaveApprovel> createState() => _LeaveApprovelState();
 }
 
-class _LeaveApprovelState extends State<LeaveApprovel>
-    with SingleTickerProviderStateMixin {
+class _LeaveApprovelState extends State<LeaveApprovel> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  String? _paymentOption = 'Pay Off'; // Default value for the payment option
 
   @override
   void initState() {
@@ -24,8 +24,57 @@ class _LeaveApprovelState extends State<LeaveApprovel>
   @override
   void dispose() {
     _controller.dispose();
-
     super.dispose();
+  }
+
+  // Function to show the payment options dialog
+  void _showPaymentOptionsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Select Payment Option"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String>(
+                value: 'Pay Off',
+                groupValue: _paymentOption,
+                title: Text('Pay Off'),
+                onChanged: (value) {
+                  setState(() {
+                    _paymentOption = value;
+                  });
+                  Navigator.pop(context); // Close the dialog
+                },
+              ),
+              RadioListTile<String>(
+                value: 'Pay Half',
+                groupValue: _paymentOption,
+                title: Text('Pay Half'),
+                onChanged: (value) {
+                  setState(() {
+                    _paymentOption = value;
+                  });
+                  Navigator.pop(context); // Close the dialog
+                },
+              ),
+              RadioListTile<String>(
+                value: 'Pay',
+                groupValue: _paymentOption,
+                title: Text('Pay'),
+                onChanged: (value) {
+                  setState(() {
+                    _paymentOption = value;
+                  });
+                  Navigator.pop(context); // Close the dialog
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -79,8 +128,8 @@ class _LeaveApprovelState extends State<LeaveApprovel>
             return GestureDetector(
                 onTap: () async {},
                 child: FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
+                  opacity: animation,
+                  child: SlideTransition(
                       position: Tween<Offset>(
                         begin: const Offset(0, 0.2), // Start slightly below
                         end: Offset.zero, // End at original position
@@ -110,10 +159,8 @@ class _LeaveApprovelState extends State<LeaveApprovel>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         children: [
@@ -177,14 +224,12 @@ class _LeaveApprovelState extends State<LeaveApprovel>
                                   ),
                                   // Horizontal Timeline Container
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                                     children: [
                                       // Accept Button
                                       ElevatedButton.icon(
                                         onPressed: () {
-                                          // Add your logic for accepting
-                                          print("Accepted");
+                                          _showPaymentOptionsDialog(); // Show the dialog
                                         },
                                         icon: Icon(
                                           Icons.check,
@@ -202,21 +247,16 @@ class _LeaveApprovelState extends State<LeaveApprovel>
                                           backgroundColor: Colors.green,
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 30, vertical: 16),
-                                          // Increased padding
                                           shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
-                                          elevation:
-                                              5, // Optional: Add shadow for more emphasis
+                                          elevation: 5,
                                         ),
                                       ),
                                       SizedBox(width: 20),
-                                      // Add space between buttons
                                       // Reject Button
                                       ElevatedButton.icon(
                                         onPressed: () {
-                                          // Add your logic for rejecting
                                           print("Rejected");
                                         },
                                         icon: Icon(
@@ -235,80 +275,28 @@ class _LeaveApprovelState extends State<LeaveApprovel>
                                           backgroundColor: Colors.red,
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 30, vertical: 16),
-                                          // Increased padding
                                           shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(12),
                                           ),
-                                          elevation:
-                                              5, // Optional: Add shadow for more emphasis
+                                          elevation: 5,
                                         ),
                                       ),
                                     ],
                                   ),
-
                                   SizedBox(height: 20),
                                 ],
                               ),
                             ),
                           ),
                         ),
-                      ]),
-                    )));
+                      ])),
+                ));
           },
         ),
       ),
     );
   }
 
-  // Helper method to build timeline tile with responsive styles
-  Widget _buildTimelineTile({
-    required Color color,
-    required IconData icon,
-    required String text,
-    required double screenWidth,
-    Color? lineBeforeColor,
-    Color? lineAfterColor,
-    bool isFirst = false,
-    bool isLast = false,
-  }) {
-    return TimelineTile(
-      axis: TimelineAxis.horizontal,
-      alignment: TimelineAlign.center,
-      isFirst: isFirst,
-      isLast: isLast,
-      indicatorStyle: IndicatorStyle(
-        width: screenWidth * 0.09, // Increased indicator size
-        color: color,
-        iconStyle: IconStyle(
-          iconData: icon,
-          color: Colors.white,
-          fontSize: screenWidth * 0.05, // Increased icon size
-        ),
-      ),
-      endChild: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8.0),
-        // Adjusted padding
-        child: Text(
-          text,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            color: Colors.black54,
-            fontFamily: 'LeagueSpartan',
-            fontSize:
-                screenWidth * 0.05, // Increased font size for timeline text
-          ),
-        ),
-      ),
-      beforeLineStyle:
-          LineStyle(color: lineBeforeColor ?? Colors.grey, thickness: 3),
-      // Slightly thicker lines
-      afterLineStyle:
-          LineStyle(color: lineAfterColor ?? Colors.grey, thickness: 3),
-    );
-  }
-
-  // Helper method to build info text with responsive font size
   List<Widget> _buildInfoText(double screenWidth, String text) {
     return [
       Text(
