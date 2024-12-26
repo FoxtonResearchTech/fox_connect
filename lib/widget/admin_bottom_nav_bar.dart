@@ -3,6 +3,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fox_connect/presentation/admin/employee_task/view_employee_task.dart';
 import 'package:fox_connect/presentation/admin/leave_approvel/leave_approval.dart';
+import 'package:fox_connect/presentation/admin/manage%20account/manage_accounts.dart';
 import 'package:fox_connect/presentation/leave/leave_registration.dart';
 import 'package:fox_connect/presentation/leave/status.dart';
 import 'package:fox_connect/presentation/profile/admin_profile.dart';
@@ -21,7 +22,7 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
   final List<Widget> _pages = [
     ViewEmployeeTask(),
     LeaveApprovel(),
-    RegisterLeave(),
+    ManageEmployeeAccountPage(),
     AdminProfile(),
   ];
 
@@ -41,7 +42,7 @@ class _AdminBottomNavBarState extends State<AdminBottomNavBar> {
           FaIcon(FontAwesomeIcons.houseLaptop,
               size: 30,
               color: _currentIndex == 1 ? Color(0xffFF0000) : Colors.white),
-          FaIcon(FontAwesomeIcons.chartLine,
+          FaIcon(FontAwesomeIcons.database,
               size: 30,
               color: _currentIndex == 2 ? Color(0xffFF0000) : Colors.white),
           Icon(Icons.person,

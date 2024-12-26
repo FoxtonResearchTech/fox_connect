@@ -38,9 +38,32 @@ class _ManageEmployeeAccountPageState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Employee Accounts'),
-        centerTitle: true,
-        backgroundColor: Colors.blue,
+        title: const Text(
+          'Manage Accounts',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'LeagueSpartan',
+          ),
+        ),
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFF00008B),
+                Color(0xFF00008B).withOpacity(1),
+                Color(0xFF00008B).withOpacity(0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: getEmployees(),
@@ -65,6 +88,7 @@ class _ManageEmployeeAccountPageState
               final employee = employees[index];
               final String employeeId = employee.id;
               final String name = employee['firstName'];
+              final String role = employee['roles'];
           //    final String role = employee['role'] ?? 'N/A';
             //  final String yearOfJoining = employee['yearOfJoining'] ?? 'N/A';
               final bool isActive = employee['isActive'];
@@ -94,19 +118,13 @@ class _ManageEmployeeAccountPageState
                           ),
                           SizedBox(height: 6),
                           Text(
-                            'Role: ',
+                            'Role: ${role}',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 16,fontWeight: FontWeight.bold,
                               color: Colors.grey[600],
                             ),
                           ),
-                          Text(
-                            'Year of Joining: ',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
+
                           SizedBox(height: 10),
                           Text(
                             isActive ? 'Active' : 'Inactive',
