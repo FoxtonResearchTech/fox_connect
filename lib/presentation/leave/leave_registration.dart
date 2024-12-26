@@ -104,9 +104,11 @@ class _RegisterLeaveState extends State<RegisterLeave>
         );
         return;
       }
+      String employeeDocId = currentUser.uid;
 
       // Prepare the leave data
       Map<String, dynamic> leaveData = {
+        'employeeId': employeeDocId, // Add the employee document ID
         'date': _dateController.text,
         'time': timeController.text,
         'leaveType': leaveTypeValue,
