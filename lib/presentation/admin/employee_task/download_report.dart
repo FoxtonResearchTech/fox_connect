@@ -4,8 +4,9 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'dart:typed_data'; // Ensure this is included
+
 class DownloadTaskreport extends StatefulWidget {
-  final Map<String, String> employee;
+  final Map<String, dynamic> employee;
 
   DownloadTaskreport({required this.employee});
 
@@ -50,11 +51,13 @@ class _DownloadTaskreportState extends State<DownloadTaskreport> {
   }
 
   Future<void> _generatePdf() async {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.width;
+
     final pdf = pw.Document();
 
-    // Load logo image
-    final ByteData logoData = await rootBundle.load('assets/logo.jpg'); // Place your logo in the assets folder
-    final Uint8List logoBytes = logoData.buffer.asUint8List();
+    final imageBytes = await rootBundle.load('assets/logo.jpg');
+    final logo = pw.MemoryImage(imageBytes.buffer.asUint8List());
 
     pdf.addPage(
       pw.Page(
@@ -62,12 +65,25 @@ class _DownloadTaskreportState extends State<DownloadTaskreport> {
         build: (pw.Context context) {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
               // Header with logo
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Image(pw.MemoryImage(logoBytes), width: 100),
+                  pw.Container(
+                    padding: pw.EdgeInsets.only(
+                      top: screenHeight * 0.02,
+                    ),
+                    height: screenHeight / 4,
+                    width: screenWidth * 0.80,
+                    decoration: pw.BoxDecoration(
+                      image: pw.DecorationImage(
+                        fit: pw.BoxFit.fitWidth,
+                        image: logo,
+                      ),
+                    ),
+                  ),
                   pw.Text(
                     'Task Report',
                     style: pw.TextStyle(
@@ -81,42 +97,66 @@ class _DownloadTaskreportState extends State<DownloadTaskreport> {
               pw.SizedBox(height: 20),
 
               // Employee Details
-              pw.Text(
-                'Employee Details',
-                style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+              pw.Center(
+                child: pw.Text(
+                  'Employee Details',
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold),
+                ),
               ),
               pw.SizedBox(height: 10),
-              pw.Text('Name: ${widget.employee['name']}'),
-              pw.Text('Role: ${widget.employee['role']}'),
+              pw.Text(
+                  "Name: ${widget.employee['firstName']}" +
+                      " " +
+                      "${widget.employee['lastName']}",
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.Text('Role: ${widget.employee['roles']}',
+                  style: pw.TextStyle(fontSize: 15)),
               pw.SizedBox(height: 20),
 
               // Project Information
-              pw.Text(
-                'Project Information',
-                style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+              pw.Center(
+                child: pw.Text(
+                  'Project Information',
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold),
+                ),
               ),
               pw.SizedBox(height: 10),
-              pw.Text('Project Name: Hospital Management System'),
-              pw.Text('Task Assign Date: 12-1-2024'),
-              pw.Text('Task Deadline Date: 12-1-2024'),
+              pw.Text('Project Name: ${widget.employee['projectName']}',
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.Text(
+                  'Task Assign Date: 12-1-2024: ${widget.employee['taskAssignDate']}',
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.Text(
+                  'Task Deadline Date: 12-1-2024: ${widget.employee['taskDeadlineDate']}',
+                  style: pw.TextStyle(fontSize: 15)),
               pw.SizedBox(height: 20),
 
               // Report Section
-              pw.Text(
-                'Today\'s Report',
-                style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+              pw.Center(
+                child: pw.Text(
+                  'Today\'s Report',
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold),
+                ),
               ),
               pw.SizedBox(height: 10),
-              pw.Text('Progress: Sample progress details here...'),
+              pw.Text('Progress: ${widget.employee['todaysReport']}'),
               pw.SizedBox(height: 20),
 
               // Issue Section
-              pw.Text(
-                'Issues Faced',
-                style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold),
+              pw.Center(
+                child: pw.Text(
+                  'Issues Faced',
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold),
+                ),
               ),
               pw.SizedBox(height: 10),
-              pw.Text('Issue: No issues reported.'),
+              pw.Text('Issue: ${widget.employee['issueDetails']}.',
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.SizedBox(height: 25),
             ],
           );
         },
@@ -124,6 +164,7 @@ class _DownloadTaskreportState extends State<DownloadTaskreport> {
     );
 
     // Display the PDF
-    await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
+    await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdf.save());
   }
 }

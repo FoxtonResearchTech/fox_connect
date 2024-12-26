@@ -3,13 +3,12 @@ import 'package:fox_connect/widget/connectivity_checker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class EmployeeProfilePage extends StatefulWidget {
+class AdminProfile extends StatefulWidget {
   @override
-  _EmployeeProfilePage createState() => _EmployeeProfilePage();
+  _AdminProfile createState() => _AdminProfile();
 }
 
-class _EmployeeProfilePage extends State<EmployeeProfilePage>
-    with TickerProviderStateMixin {
+class _AdminProfile extends State<AdminProfile> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   Map<String, dynamic> employee = {};

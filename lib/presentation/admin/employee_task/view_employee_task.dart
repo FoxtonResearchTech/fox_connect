@@ -1,46 +1,53 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fox_connect/presentation/admin/employee_task/admin_task_search.dart';
+import 'package:intl/intl.dart'; // For date formatting
 import 'package:fox_connect/presentation/admin/employee_task/task_view.dart';
 
 class ViewEmployeeTask extends StatefulWidget {
-  ViewEmployeeTask({super.key});
+  const ViewEmployeeTask({super.key});
 
   @override
   _ViewEmployeeTaskState createState() => _ViewEmployeeTaskState();
 }
 
 class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
-    with TickerProviderStateMixin {
-  final List<Map<String, String>> employees = [
-    {
-      'name': 'John Doe',
-      'role': 'Developer',
-      'date': '2024-12-25',
-      'time': '10:00 AM'
-    },
-    {
-      'name': 'Jane Smith',
-      'role': 'Designer',
-      'date': '2024-12-26',
-      'time': '11:00 AM'
-    },
-    {
-      'name': 'Mike Brown',
-      'role': 'Manager',
-      'date': '2024-12-27',
-      'time': '09:30 AM'
-    },
-    {
-      'name': 'Emily White',
-      'role': 'Tester',
-      'date': '2024-12-28',
-      'time': '02:00 PM'
-    },
-  ];
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize the AnimationController and Animation
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
+
+    // Define the animation (for example, a fade-in animation)
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+
+    // Start the animation
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    // Dispose of the controller when no longer needed
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+
+    // Get current date formatted as 'yyyy-MM-dd' (without time)
+    String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
     return Scaffold(
       appBar: AppBar(
@@ -60,9 +67,9 @@ class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                const Color(0xFF00008B),
-                const Color(0xFF00008B).withOpacity(1),
-                const Color(0xFF00008B).withOpacity(0.8),
+                Color(0xFF00008B),
+                Color(0xFF00008B).withOpacity(1),
+                Color(0xFF00008B).withOpacity(0.8),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -71,143 +78,244 @@ class _ViewEmployeeTaskState extends State<ViewEmployeeTask>
         ),
         actions: [
           IconButton(
-            padding: EdgeInsets.only(right: screenWidth * 0.02),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AdminTaskSearch()));
-            },
-            icon: Icon(
-              Icons.search,
-              color: Colors.white,
-              size: screenWidth * 0.08,
-            ),
-          ),
+              padding: EdgeInsets.only(right: screenWidth * 0.02),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AdminTaskSearch(),
+                  ),
+                );
+              },
+              icon: Icon(
+                Icons.search,
+                color: Colors.white,
+                size: screenWidth * 0.08,
+              ))
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: MediaQuery.of(context).size.width > 800 ? 4 : 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 0.8, // Makes the cards taller
-          ),
-          itemCount: employees.length,
-          itemBuilder: (context, index) {
-            final employee = employees[index];
+        child: StreamBuilder<QuerySnapshot>(
+          stream:
+              FirebaseFirestore.instance.collection('employees').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-            // Create an animation controller for scale effect with a slower duration
-            final _scaleController = AnimationController(
-              vsync: this,
-              duration: const Duration(
-                  milliseconds: 400), // Slow down the scale animation
-            );
-            final _scaleAnimation = CurvedAnimation(
-                parent: _scaleController, curve: Curves.easeInOut);
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
 
-            // Add a listener to start the animation
-            _scaleController.forward();
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(child: Text('No tasks found.'));
+            }
 
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            TaskViewPage(employee: employee)));
-              },
-              child: ScaleTransition(
-                scale: _scaleAnimation,
-                child: Card(
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.teal,
-                          child: Text(
-                            employee['name']![0], // First letter of the name
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          employee['name']!,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Role: ${employee['role']}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.date_range,
-                                  size: screenWidth * 0.05,
-                                  color: const Color(0xffFF0000),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "12-1-2024",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'LeagueSpartan',
-                                    color: Colors.black54,
-                                    fontSize: screenWidth * 0.05,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.watch_later,
-                                  size: screenWidth * 0.05,
-                                  color: const Color(0xffFF0000),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '10:15 AM',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'LeagueSpartan',
-                                    color: Colors.black54,
-                                    fontSize: screenWidth * 0.05,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+            final employees = snapshot.data!.docs;
+
+            return GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: screenWidth > 800 ? 4 : 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.8,
               ),
+              itemCount: employees.length,
+              itemBuilder: (context, index) {
+                final employee =
+                    employees[index].data() as Map<String, dynamic>;
+                final employeeId = employees[index].id; // Employee document ID
+
+                return FutureBuilder<QuerySnapshot>(
+                  future: FirebaseFirestore.instance
+                      .collection('employees')
+                      .doc(employeeId)
+                      .collection('tasks') // Fetch tasks subcollection
+                      .get(),
+                  builder: (context, taskSnapshot) {
+                    if (taskSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (taskSnapshot.hasError) {
+                      return Center(
+                          child: Text('Error: ${taskSnapshot.error}'));
+                    }
+
+                    final tasks = taskSnapshot.data?.docs ?? [];
+
+                    // Default values if no tasks are present
+                    String date = 'N/A';
+                    String time = 'N/A';
+                    String projectName = 'N/A';
+                    String taskAssignDate = 'N/A';
+                    String taskAssignTime = 'N/A';
+                    String taskDeadDate = 'N/A';
+                    String taskDeadTime = 'N/A';
+                    String todayReport = 'N/A';
+                    String Issues = 'N/A';
+                    String createdAt = 'N/A'; // Default value
+
+                    // Find tasks with createdAt matching the current date
+                    List<Widget> taskWidgets = [];
+
+                    for (var task in tasks) {
+                      final taskData = task.data() as Map<String, dynamic>;
+                      date = taskData['taskAssignDate'] ?? 'N/A';
+                      time = taskData['taskAssignTime'] ?? 'N/A';
+                      projectName = taskData['projectName'] ?? 'N/A';
+                      taskAssignDate = taskData['taskAssignDate'] ?? 'N/A';
+                      taskAssignTime = taskData['taskAssignTime'] ?? 'N/A';
+                      taskDeadTime = taskData['taskDeadlineTime'] ?? 'N/A';
+                      taskDeadDate = taskData['taskDeadlineDate'] ?? 'N/A';
+                      todayReport = taskData['todaysReport'] ?? 'N/A';
+                      Issues = taskData['issueDetails'] ?? 'N/A';
+                      createdAt = taskData['createdAt'] != null
+                          ? (taskData['createdAt'] as Timestamp)
+                              .toDate()
+                              .toString()
+                              .substring(0, 10) // Only date portion
+                          : 'N/A';
+
+                      // Compare task createdAt with currentDate
+                      if (createdAt == currentDate) {
+                        taskWidgets.add(GestureDetector(
+                          onTap: () {
+                            final employeeData = {
+                              ...employee,
+                              'date': date,
+                              'time': time,
+                              'createdAt': createdAt,
+                              'projectName': projectName,
+                              'taskAssignDate': taskAssignDate,
+                              'taskAssignTime': taskAssignTime,
+                              'taskDeadlineDate': taskDeadDate,
+                              'taskDeadlineTime': taskDeadTime,
+                              'todaysReport': todayReport,
+                              "issueDetails": Issues,
+                            }.map((key, value) =>
+                                MapEntry(key, value.toString()));
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    TaskViewPage(employee: employeeData),
+                              ),
+                            );
+                          },
+                          child: FadeTransition(
+                            opacity: _animation, // Apply the fade animation
+                            child: Card(
+                              elevation: 8,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              color: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 30,
+                                      backgroundColor: Colors.teal,
+                                      child: Text(
+                                        employee['firstName']
+                                            [0], // First letter of the name
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      employee['firstName'],
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Role: ${employee['roles']}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.date_range,
+                                              size: screenWidth * 0.04,
+                                              color: Color(0xffFF0000),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              date,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontFamily: 'LeagueSpartan',
+                                                color: Colors.black54,
+                                                fontSize: screenWidth * 0.04,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.watch_later,
+                                              size: screenWidth * 0.04,
+                                              color: Color(0xffFF0000),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              time,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontFamily: 'LeagueSpartan',
+                                                color: Colors.black54,
+                                                fontSize: screenWidth * 0.04,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ));
+                      }
+                    }
+
+                    // If no tasks match the current date, show a message
+                    if (taskWidgets.isEmpty) {
+                      return const Center(
+                          child: Text('No tasks found for today.'));
+                    }
+
+                    // Return the list of tasks matching the current date
+                    return Column(children: taskWidgets);
+                  },
+                );
+              },
             );
           },
         ),

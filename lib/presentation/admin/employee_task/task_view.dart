@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:fox_connect/presentation/admin/employee_task/download_report.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class TaskViewPage extends StatefulWidget {
-  final Map<String, String> employee;
+  final Map<String, dynamic> employee;
 
   TaskViewPage({required this.employee});
 
@@ -117,10 +121,10 @@ class _TaskViewPageState extends State<TaskViewPage>
                       backgroundColor: Colors.white,
                       child: CircleAvatar(
                         radius: 55,
-                        backgroundColor: Color(0xFF00008B),
+                        backgroundColor: Colors.teal,
                         child: Text(
-                          widget
-                              .employee['name']![0], // First letter of the name
+                          widget.employee['firstName']![0]
+                              .toString(), // First letter of the name
                           style: TextStyle(
                             fontSize: 48,
                             fontWeight: FontWeight.bold,
@@ -143,7 +147,7 @@ class _TaskViewPageState extends State<TaskViewPage>
                   children: [
                     Center(
                       child: Text(
-                        widget.employee['name']!,
+                        widget.employee['firstName']!.toString(),
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -153,7 +157,7 @@ class _TaskViewPageState extends State<TaskViewPage>
                     SizedBox(height: 10),
                     Center(
                       child: Text(
-                        widget.employee['role']!,
+                        widget.employee['roles']!.toString(),
                         style: TextStyle(
                           fontSize: 18,
                           fontStyle: FontStyle.italic,
@@ -176,7 +180,8 @@ class _TaskViewPageState extends State<TaskViewPage>
                     ),
                     SizedBox(height: 10),
                     Text(
-                      "Hospital Management System", // Example project name
+                      widget.employee['projectName']
+                          .toString(), // Example project name
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.black54,
@@ -220,7 +225,7 @@ class _TaskViewPageState extends State<TaskViewPage>
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  "12-1-2024",
+                                  widget.employee['taskAssignDate']!.toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'LeagueSpartan',
@@ -239,7 +244,8 @@ class _TaskViewPageState extends State<TaskViewPage>
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  "12-1-2024",
+                                  widget.employee['taskDeadlineDate']!
+                                      .toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'LeagueSpartan',
@@ -264,7 +270,7 @@ class _TaskViewPageState extends State<TaskViewPage>
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '10:15 AM',
+                                  widget.employee['taskAssignTime']!.toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'LeagueSpartan',
@@ -283,7 +289,8 @@ class _TaskViewPageState extends State<TaskViewPage>
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  '10:15 AM',
+                                  widget.employee['taskDeadlineTime']!
+                                      .toString(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'LeagueSpartan',
@@ -309,7 +316,7 @@ class _TaskViewPageState extends State<TaskViewPage>
                     TextField(
                       maxLines: 3,
                       decoration: InputDecoration(
-                        hintText: "Enter today's progress...",
+                        hintText: widget.employee['todaysReport']!.toString(),
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -332,7 +339,8 @@ class _TaskViewPageState extends State<TaskViewPage>
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              hintText: "Describe any issue...",
+                              hintText:
+                                  widget.employee['issueDetails']!.toString(),
                               border: OutlineInputBorder(),
                             ),
                           ),
@@ -345,12 +353,7 @@ class _TaskViewPageState extends State<TaskViewPage>
                         width: 200,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            // Handle download action
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => DownloadTaskreport(
-                                        employee: widget.employee)));
+                            _generatePdf();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
@@ -378,5 +381,123 @@ class _TaskViewPageState extends State<TaskViewPage>
         ),
       ),
     );
+  }
+
+  Future<void> _generatePdf() async {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.width;
+
+    final pdf = pw.Document();
+
+    final imageBytes = await rootBundle.load('assets/logo.jpg');
+    final logo = pw.MemoryImage(imageBytes.buffer.asUint8List());
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              // Header with logo
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Container(
+                    padding: pw.EdgeInsets.only(
+                      top: screenHeight * 0.02,
+                    ),
+                    height: screenHeight / 4,
+                    width: screenWidth * 0.80,
+                    decoration: pw.BoxDecoration(
+                      image: pw.DecorationImage(
+                        fit: pw.BoxFit.fitWidth,
+                        image: logo,
+                      ),
+                    ),
+                  ),
+                  pw.Text(
+                    'Task Report',
+                    style: pw.TextStyle(
+                      fontSize: 24,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              pw.Divider(),
+              pw.SizedBox(height: 20),
+
+              // Employee Details
+              pw.Center(
+                child: pw.Text(
+                  'Employee Details',
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold),
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text(
+                  "Name: ${widget.employee['firstName']}" +
+                      " " +
+                      "${widget.employee['lastName']}",
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.Text('Role: ${widget.employee['roles']}',
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.SizedBox(height: 20),
+
+              // Project Information
+              pw.Center(
+                child: pw.Text(
+                  'Project Information',
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold),
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text('Project Name: ${widget.employee['projectName']}',
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.Text(
+                  'Task Assign Date: 12-1-2024: ${widget.employee['taskAssignDate']}',
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.Text(
+                  'Task Deadline Date: 12-1-2024: ${widget.employee['taskDeadlineDate']}',
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.SizedBox(height: 20),
+
+              // Report Section
+              pw.Center(
+                child: pw.Text(
+                  'Today\'s Report',
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold),
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text('Progress: ${widget.employee['todaysReport']}'),
+              pw.SizedBox(height: 20),
+
+              // Issue Section
+              pw.Center(
+                child: pw.Text(
+                  'Issues Faced',
+                  style: pw.TextStyle(
+                      fontSize: 20, fontWeight: pw.FontWeight.bold),
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text('Issue: ${widget.employee['issueDetails']}.',
+                  style: pw.TextStyle(fontSize: 15)),
+              pw.SizedBox(height: 25),
+            ],
+          );
+        },
+      ),
+    );
+
+    // Display the PDF
+    await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => pdf.save());
   }
 }
