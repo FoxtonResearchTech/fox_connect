@@ -458,14 +458,29 @@ class _TaskViewPageState extends State<TaskViewPage>
               pw.SizedBox(height: 10),
               pw.Text('Project Name: ${widget.employee['projectName']}',
                   style: pw.TextStyle(fontSize: 15)),
-              pw.Text(
-                  'Task Assign Date: 12-1-2024: ${widget.employee['taskAssignDate']}',
-                  style: pw.TextStyle(fontSize: 15)),
-              pw.Text(
-                  'Task Deadline Date: 12-1-2024: ${widget.employee['taskDeadlineDate']}',
-                  style: pw.TextStyle(fontSize: 15)),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text(
+                      'Task Assign Date:${widget.employee['taskAssignDate']}',
+                      style: pw.TextStyle(fontSize: 15)),
+                  pw.Text(
+                      'Task Assign Time: ${widget.employee['taskAssignTime']}',
+                      style: pw.TextStyle(fontSize: 15)),
+                ],
+              ),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Text(
+                      'Task Deadline Date:${widget.employee['taskDeadlineDate']}',
+                      style: pw.TextStyle(fontSize: 15)),
+                  pw.Text(
+                      'Task Deadline Time: ${widget.employee['taskDeadlineTime']}',
+                      style: pw.TextStyle(fontSize: 15)),
+                ],
+              ),
               pw.SizedBox(height: 20),
-
               // Report Section
               pw.Center(
                 child: pw.Text(

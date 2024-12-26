@@ -121,12 +121,13 @@ class _RegisterLeaveState extends State<RegisterLeave>
       };
 
       // Save the data to Firestore under the current user's UID
-      await FirebaseFirestore.instance
+      DocumentReference leaveDocRef = await FirebaseFirestore.instance
           .collection('employees')
           .doc(currentUser.uid) // Use the logged-in user's UID
           .collection('leave')
           .add(leaveData);
 
+      await leaveDocRef.update({'leaveId': leaveDocRef.id});
       // Success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Leave registered successfully!')),
